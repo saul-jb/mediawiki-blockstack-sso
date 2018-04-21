@@ -1,0 +1,43 @@
+{
+	"name": "BlockstackSso",
+	"version": "0.0.1, 2018-04-21",
+	"author": ["[https://organicdesign.nz/aran Aran Dunkley]"],
+	"url": "https://github.com/saul-avikar/mediawiki-blockstack-sso",
+	"description": "Adds the ability to sign in to a MediaWiki using your descentralised Blockstack ID",
+	"license-name": "GPL",
+	"type": "other",
+	"callback": "BlockstackSso::onRegistration",
+	"AutoloadClasses": {
+		"BlockstackSso": "BlockstackSso.php",
+		"BlockstackSsoAuthProvider": "BlockstackSsoAuthProvider.php",
+		"BlockstackSsoAuthRequest": "BlockstackSsoAuthRequest.php"
+	},
+	"Hooks": {
+		"UserLoginComplete":  ["BlockstackSsoAuthProvider::onUserLoginComplete"],
+		"UserLogoutComplete": ["BlockstackSso::onUserLogoutComplete"]
+	},
+	"AuthManagerAutoConfig": {
+		"preauth": {},
+		"primaryauth": {
+			"BlockstackSsoAuthProvider": {
+				"class": "BlockstackSsoAuthProvider",
+				"args": [ "foo" ],
+				"sort": -1
+			}
+		},
+		"secondaryauth": {}
+	},
+	"MessagesDirs": {
+		"BlockstackSso": ["i18n"]
+	},
+	"ResourceModules": {
+		"ext.blockstacksso": {
+			"scripts": ["modules/blockstacksso.js"]
+		}
+	},
+	"@": "Paths calculated at runtime",
+	"ResourceFileModulePaths": {
+		"localBasePath": "",
+		"remoteExtPath": ""
+	}
+}

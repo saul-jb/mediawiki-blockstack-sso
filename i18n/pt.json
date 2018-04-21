@@ -1,0 +1,10 @@
+{
+	"@metadata": {
+		"authors": [
+			"Nad"
+		]
+	},
+	"blockstacksso-login-create-on": "Por favor, insira um nome de conta no wiki e uma senha. Se a conta já existir, a senha deve estar correta para permitir que seu ID de blockstack seja vinculado a ela. Se não existir, a conta será criada e a senha será necessária se os logins de Blockstack forem desativados posteriormente.",
+	"blockstacksso-login-create-off": "Por favor, insira um nome de conta existente no wiki para vincular seu ID de Blockstack à senha da conta.",
+	"blockstacksso-wrongpass": "A senha dessa conta está incorreta, digite a senha correta ou use um nome de usuário diferente."
+}

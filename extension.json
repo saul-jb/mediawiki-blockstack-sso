@@ -6,15 +6,15 @@
 	"description": "Adds the ability to sign in to a MediaWiki using your descentralised Blockstack ID",
 	"license-name": "GPL",
 	"type": "other",
-	"callback": "BlockstackSso::onRegistration",
+	"callback": "Blockstack::onRegistration",
 	"AutoloadClasses": {
-		"BlockstackSso": "BlockstackSso.php",
-		"BlockstackSsoAuthProvider": "BlockstackSsoAuthProvider.php",
-		"BlockstackSsoAuthRequest": "BlockstackSsoAuthRequest.php"
+		"Blockstack": "Blockstack.php",
+		"BlockstackAuthProvider": "BlockstackAuthProvider.php",
+		"BlockstackAuthRequest": "BlockstackAuthRequest.php"
 	},
 	"Hooks": {
-		"UserLoginComplete":  ["BlockstackSsoAuthProvider::onUserLoginComplete"],
-		"UserLogoutComplete": ["BlockstackSso::onUserLogoutComplete"]
+		"UserLoginComplete":  ["BlockstackAuthProvider::onUserLoginComplete"],
+		"UserLogoutComplete": ["Blockstack::onUserLogoutComplete"]
 	},
 	"AuthManagerAutoConfig": {
 		"preauth": {},
@@ -28,11 +28,11 @@
 		"secondaryauth": {}
 	},
 	"MessagesDirs": {
-		"BlockstackSso": ["i18n"]
+		"Blockstack": ["i18n"]
 	},
 	"ResourceModules": {
-		"ext.blockstacksso": {
-			"scripts": ["modules/blockstacksso.js"]
+		"ext.blockstack": {
+			"scripts": ["modules/blockstack.js"]
 		}
 	},
 	"@": "Paths calculated at runtime",

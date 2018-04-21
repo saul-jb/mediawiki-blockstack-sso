@@ -1,5 +1,5 @@
 <?php
-class BlockstackSso {
+class Blockstack {
 
 	public static $instance = null;
 
@@ -10,8 +10,8 @@ class BlockstackSso {
 		$wgAuthManagerAutoConfig = [
 			'preauth' => [],
 			'primaryauth' => [
-				BlockstackSsoAuthProvider::class => [
-					'class' => BlockstackSsoAuthProvider::class
+				BlockstackAuthProvider::class => [
+					'class' => BlockstackAuthProvider::class
 				]
 			],
 			'secondaryauth' => [],
@@ -31,10 +31,9 @@ class BlockstackSso {
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$path = $wgExtensionAssetsPath . str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
 
-		$wgResourceModules['ext.blockstacksso']['localBasePath'] = __DIR__ . '/modules';
-		$wgResourceModules['ext.blockstacksso']['remoteExtPath'] = "$path/modules";
-		$wgOut->addModules( 'ext.blockstacksso' );
-		//$wgOut->addJsConfigVars( 'fancytree_path', "$path/fancytree" );
+		$wgResourceModules['ext.blockstack']['localBasePath'] = __DIR__ . '/modules';
+		$wgResourceModules['ext.blockstack']['remoteExtPath'] = "$path/modules";
+		$wgOut->addModules( 'ext.blockstack' );
 	}
 
 	/**
@@ -48,7 +47,7 @@ class BlockstackSso {
 	 * Post-login redirect?
 	 */
  	private static function postLogout() {
-		//httpRedirect( "https://" . DcsCommon::$qar['Url'] . "/logout" );
+		self::httpRedirect( "https://" . DcsCommon::$qar['Url'] . "/logout" );
 	}
 
 	/**

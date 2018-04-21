@@ -17,5 +17,5 @@ Put the code into your wiki's __xtensions_ directory and load it the usual way u
 For example:
 ```php
 wfLoadExtension( 'BlockstackSso' );
-$wgBlockstackSsoPath = '/var/www/htdocs/BlockstackSso';
+$wgBlockstackSsoPath = '/var/www/htdocs/Blockstack-SSO';
 ```

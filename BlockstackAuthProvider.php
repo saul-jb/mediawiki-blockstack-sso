@@ -1,6 +1,6 @@
 <?php
 use MediaWiki\Auth\AbstractPrimaryAuthenticationProvider;
-class BlockstackSsoAuthProvider extends AbstractPrimaryAuthenticationProvider {
+class BlockstackAuthProvider extends AbstractPrimaryAuthenticationProvider {
 
 	/**
 	 * TODO: do we need to log out any already logged in user first?
@@ -24,7 +24,7 @@ class BlockstackSsoAuthProvider extends AbstractPrimaryAuthenticationProvider {
 			// Log the user in with the normal MW mechanism but without any login form
 			case  MediaWiki\Auth\AuthManager::ACTION_LOGIN:
 				wfDebugLog( __METHOD__, "Login action received" );
-				return [ new BlockstackSsoAuthRequest() ];
+				return [ new BlockstackAuthRequest() ];
 				break;
 
 			// Redirect the user
@@ -53,7 +53,7 @@ class BlockstackSsoAuthProvider extends AbstractPrimaryAuthenticationProvider {
 	 * Ignore all but our class of request
 	 */
 	public function providerAllowsAuthenticationDataChange( MediaWiki\Auth\AuthenticationRequest $req, $checkData = true ) {
-		if( get_class($req) === BlockstackSsoAuthRequest::class ) {
+		if( get_class($req) === BlockstackAuthRequest::class ) {
 			return StatusValue::newGood();
 		} else {
 			return StatusValue::newGood('ignored');
@@ -123,6 +123,6 @@ class BlockstackSsoAuthProvider extends AbstractPrimaryAuthenticationProvider {
 	 */
 	private static function redirect() {
 		wfDebugLog( __METHOD__, 'Redirecting to home page' );
-		BlockstackSso::httpRedirect( Title::newFromText( 'Home Page' )->getFullUrl() );
+		Blockstack::httpRedirect( Title::newFromText( 'Home Page' )->getFullUrl() );
 	}
 }

@@ -20,10 +20,15 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	private $autoCreateLinkRequest;
 
 	public function beginPrimaryAuthentication( array $reqs ) {
-		return $this->beginPrimaryAuthentication( $reqs, 'blockstackauth' );
+		wfDebugLog( 'SSO', __METHOD__ );
+		static $done = false;
+		if( $done ) die('recursive');
+		$done = true;
+		return $this->beginBlockstackAuthentication( $reqs, 'blockstackauth' );
 	}
 
 	public function continuePrimaryAuthentication( array $reqs ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		global $wgBlockstackAuthAutoCreate;
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthRequest::class );
 		if ( !$request ) {
@@ -70,6 +75,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function autoCreatedAccount( $user, $source ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		if ( $this->autoCreateLinkRequest !== null && isset( $this->autoCreateLinkRequest->userInfo['user_id'] ) ) {
 			BlockstackUser::connectWithBlockstackUser( $user,
 				$this->autoCreateLinkRequest->userInfo['user_id'] );
@@ -81,6 +87,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function getAuthenticationRequests( $action, array $options ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		switch ( $action ) {
 
 			case AuthManager::ACTION_LOGIN:
@@ -124,10 +131,12 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function testUserExists( $username, $flags = User::READ_NORMAL ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		return false;
 	}
 
 	public function testUserCanAuthenticate( $username ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$user = User::newFromName( $username );
 		if ( $user ) {
 			return BlockstackUser::hasConnectedBlockstackUserAccount( $user );
@@ -136,6 +145,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		if ( get_class( $req ) === BlockstackRemoveAuthRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if ( $user && $req->getBlockstackUserId() === BlockstackUser::getBlockstackUserIdFromUser( $user ) ) {
@@ -148,6 +158,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		if ( get_class( $req ) === BlockstackRemoveAuthRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			BlockstackUser::terminateBlockstackUserConnection( $user, $req->getBlockstackUserId() );
@@ -155,14 +166,17 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function providerNormalizeUsername( $username ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		return null;
 	}
 
 	public function accountCreationType() {
+		wfDebugLog( 'SSO', __METHOD__ );
 		return self::TYPE_LINK;
 	}
 
 	public function beginPrimaryAccountCreation( $user, $creator, array $reqs ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackUserInfoAuthRequest::class );
 		if ( $request ) {
 			if ( BlockstackUser::isBlockstackUserIdFree( $request->userInfo['user_id'] ) ) {
@@ -175,6 +189,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function continuePrimaryAccountCreation( $user, $creator, array $reqs ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
@@ -202,6 +217,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function finishAccountCreation( $user, $creator, AuthenticationResponse $response ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$userInfo = $response->linkRequest->userInfo;
 		$user->setEmail( $userInfo['user']['user_email'] );
 		$user->saveSettings();
@@ -210,10 +226,12 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	}
 
 	public function beginPrimaryAccountLink( $user, array $reqs ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		return $this->beginBlockstackAuthentication( $reqs, 'blockstackauth' );
 	}
 
 	public function continuePrimaryAccountLink( $user, array $reqs ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
@@ -257,6 +275,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	 * @return AuthenticationResponse
 	 */
 	private function beginBlockstackAuthentication( array $reqs, $buttonAuthenticationRequestName ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		$req = BlockstackAuthRequest::getRequestByName( $reqs,
 			$buttonAuthenticationRequestName );
 		if ( !$req ) {
@@ -274,6 +293,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	 * @return OAuth2Client
 	 */
 	public function getBlockstackClient( $returnUrl ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		/*$client = new OAuth2Client();
 		$client->setBaseUrl( $config->get( 'BlockstackAuthBaseUrl' ) )
 			->setClientId( $config->get( 'BlockstackAuthClientId' ) )
@@ -291,6 +311,7 @@ class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvide
 	 * @return BlockstackUser|AuthenticationResponse
 	 */
 	private function getAuthenticatedBlockstackUserFromRequest( BlockstackServerAuthRequest $request ) {
+		wfDebugLog( 'SSO', __METHOD__ );
 		if ( !$request->accessToken || $request->errorCode ) {
 			switch ( $request->errorCode ) {
 				case 'access_denied':

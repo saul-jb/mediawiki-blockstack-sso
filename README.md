@@ -1,7 +1,7 @@
 # Blockstack SSO extension for MediaWiki
 not functional yet...
 
-This extension uses the [Blockstack SSO common PHP class](https://github.com/saul-avikar/Blockstack-SSO) to create a new authentication provider allowing users to sign in or create accounts with their [Blockstack](https://blockstack.org/) profile which is decentralised existing on the [Bitcoin](http://bitcoin.org) blockchain.
+This extension uses the [Blockstack SSO common PHP class](https://github.com/saul-avikar/Blockstack-SSO) to create a new authentication provider allowing users to sign in or create accounts with their [Blockstack](https://blockstack.org/) profile, which is a decentralised identity system that uses the [Bitcoin](http://bitcoin.org) blockchain.
 
 A new "sign in with blockstack" button appears on the wikis login form allowing users to select one of their Blockstack profiles, either from their locally installed Blockstack application, or using the [web-based Blockstack browser](http://browser.blockstack.org/).
 

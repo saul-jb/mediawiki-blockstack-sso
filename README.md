@@ -9,10 +9,10 @@ If the selected Blockstack ID is already in use on the wiki, the user will then 
 
 If the wiki allows public creation of accounts, then the specified username is allowed to be non-existent, in which case the account will be created and the Blockstack ID associated with it. Usually the wiki will require further steps to initially create the account such as email confirmation, so the Blockstack login will only work on newly created accounts after these steps have been carried out.
 
-The user has the ability to disconnect their Blockstack ID from their account in the __Blockstack__ tab of the preferences page.
+The user has the ability to disconnect their Blockstack ID from their account in the _Blockstack_ tab of the preferences page.
 
 ## Installation
-Put the code into your wiki's __extensions__ directory and load it the usual way using __wfLoadExtension__, you also need to set the __$wgBlockstackSsoPath__ variable to point at the location of the [Blockstack SSO common PHP class](https://github.com/saul-avikar/Blockstack-SSO) in your environment.
+Put the code into your wiki's __xtensions_ directory and load it the usual way using _wfLoadExtension_, you also need to set the _$wgBlockstackSsoPath_ variable to point at the location of the [Blockstack SSO common PHP class](https://github.com/saul-avikar/Blockstack-SSO) in your environment.
 
 For example:
 ```php

@@ -10,8 +10,8 @@ class Blockstack {
 		$wgAuthManagerAutoConfig = [
 			'preauth' => [],
 			'primaryauth' => [
-				BlockstackAuthProvider::class => [
-					'class' => BlockstackAuthProvider::class
+				BlockstackPrimaryAuthProvider::class => [
+					'class' => BlockstackPrimaryAuthProvider::class
 				]
 			],
 			'secondaryauth' => [],

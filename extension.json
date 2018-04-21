@@ -14,12 +14,13 @@
 		"Blockstack": ["i18n"]
 	},	
 	"AutoloadClasses": {
-		"BlockstackPrimaryAuthProvider": "BlockstackPrimaryAuthProvider.php",
-		"BlockstackAuthenticationRequest": "BlockstackAuthenticationRequest.php",
-		"BlockstackRemoveAuthenticationRequest": "BlockstackRemoveAuthenticationRequest.php",
-		"BlockstackServerAuthenticationRequest": "BlockstackServerAuthenticationRequest.php",
-		"BlockstackUserInfoAuthenticationRequest": "BlockstackUserInfoAuthenticationRequest.php",
-		"BlockstackUser": "BlockstackUser.php"
+		"Blockstack": "Blockstack.php",
+		"BlockstackUser": "BlockstackUser.php",
+		"BlockstackPrimaryAuthProvider": "auth/BlockstackPrimaryAuthProvider.php",
+		"BlockstackAuthRequest": "auth/BlockstackAuthRequest.php",
+		"BlockstackRemoveAuthRequest": "auth/BlockstackRemoveAuthRequest.php",
+		"BlockstackServerAuthRequest": "auth/BlockstackServerAuthRequest.php",
+		"BlockstackUserInfoAuthRequest": "auth/BlockstackUserInfoAuthRequest.php"
 	},
 	"AuthManagerAutoConfig": {
 		"primaryauth": {

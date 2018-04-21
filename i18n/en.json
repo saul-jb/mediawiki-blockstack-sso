@@ -4,7 +4,8 @@
 			"Nad"
 		]
 	},
-	"blockstacksso-login-create-on": "Please enter an account name in the wiki and a password. If the account already exsists, then the password must be correct to allow your blockstack ID to be linked to it. If it does not exist, the account will be created and the password will be needed if blockstack logins are later disabled.",
-	"blockstacksso-login-create-off": "Please enter an existing account name in the wiki to link your Blockstack ID to, and the password for the account.",
-	"blockstacksso-wrongpass": "The password for this account is incorrect, please enter the correct password or use a different username."
+	"blockstack-desc": "Allows users to login to the wiki with their decentralised Blockstack identity.",
+	"blockstack-login-create-on": "Please enter an account name in the wiki and a password. If the account already exsists, then the password must be correct to allow your blockstack ID to be linked to it. If it does not exist, the account will be created and the password will be needed if blockstack logins are later disabled.",
+	"blockstack-login-create-off": "Please enter an existing account name in the wiki to link your Blockstack ID to, and the password for the account.",
+	"blockstack-wrongpass": "The password for this account is incorrect, please enter the correct password or use a different username."
 }

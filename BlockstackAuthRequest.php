@@ -5,7 +5,7 @@ class BlockstackAuthRequest extends ButtonAuthenticationRequest {
 
 	public function __construct( \Message $label, \Message $help ) {
 		parent::__construct(
-			blockstackauth,
+			'blockstackauth',
 			$label,
 			$help,
 			true

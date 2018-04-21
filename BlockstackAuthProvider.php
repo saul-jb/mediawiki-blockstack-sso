@@ -12,7 +12,7 @@ use MediaWiki\MediaWikiServices;
  * authenticate and permit the access to the data of the foreign account, before it actually
  * authenticates the user.
  */
-class BlockstackAuthProvider extends AbstractPrimaryAuthenticationProvider {
+class BlockstackPrimaryAuthProvider extends AbstractPrimaryAuthenticationProvider {
 
 	/**
 	 * @var null|BlockstackUserInfoAuthenticationRequest

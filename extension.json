@@ -1,41 +1,40 @@
 {
 	"name": "BlockstackSso",
-	"version": "0.0.1, 2018-04-21",
-	"author": ["[https://organicdesign.nz/aran Aran Dunkley]"],
+	"version": "0.0.1",
+	"author": ["[https://organicdesign.nz/aran Aran Dunkley]", "Florian Schmidt"],
 	"url": "https://github.com/saul-avikar/mediawiki-blockstack-sso",
-	"description": "Adds the ability to sign in to a MediaWiki using your descentralised Blockstack ID",
-	"license-name": "GPL",
-	"type": "other",
+	"descriptionmsg": "blockstack-desc",
+	"license-name": "MIT",
+	"type": "auth",
 	"callback": "Blockstack::onRegistration",
-	"AutoloadClasses": {
-		"Blockstack": "Blockstack.php",
-		"BlockstackAuthProvider": "BlockstackAuthProvider.php",
-		"BlockstackAuthRequest": "BlockstackAuthRequest.php"
-	},
-	"Hooks": {
-		"UserLoginComplete":  ["BlockstackAuthProvider::onUserLoginComplete"],
-		"UserLogoutComplete": ["Blockstack::onUserLogoutComplete"]
-	},
-	"AuthManagerAutoConfig": {
-		"preauth": {},
-		"primaryauth": {
-			"BlockstackSsoAuthProvider": {
-				"class": "BlockstackSsoAuthProvider",
-				"args": [ "foo" ],
-				"sort": -1
-			}
-		},
-		"secondaryauth": {}
+	"requires": {
+		"MediaWiki": ">= 1.28.0"
 	},
 	"MessagesDirs": {
 		"Blockstack": ["i18n"]
+	},	
+	"AutoloadClasses": {
+		"BlockstackPrimaryAuthProvider": "BlockstackPrimaryAuthProvider.php",
+		"BlockstackAuthenticationRequest": "BlockstackAuthenticationRequest.php",
+		"BlockstackRemoveAuthenticationRequest": "BlockstackRemoveAuthenticationRequest.php",
+		"BlockstackServerAuthenticationRequest": "BlockstackServerAuthenticationRequest.php",
+		"BlockstackUserInfoAuthenticationRequest": "BlockstackUserInfoAuthenticationRequest.php",
+		"BlockstackUser": "BlockstackUser.php"
+	},
+	"AuthManagerAutoConfig": {
+		"primaryauth": {
+			"BlockstackPrimaryAuthProvider": {
+				"class": "BlockstackPrimaryAuthProvider",
+				"sort": 102
+			}
+		}
 	},
 	"ResourceModules": {
 		"ext.blockstack": {
-			"scripts": ["modules/blockstack.js"]
+			"scripts": ["blockstack.js"]
 		}
 	},
-	"@": "Paths calculated at runtime",
+	"@": "The paths will be calculated at runtime",
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
 		"remoteExtPath": ""

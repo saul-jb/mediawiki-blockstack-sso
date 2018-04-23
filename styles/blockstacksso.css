@@ -1,0 +1,7 @@
+#mw-input-blockstacksso {
+	background: #f8f8f8 url( images/logo.png ) no-repeat 3px 4px;
+	height: 40px;
+}
+#mw-input-blockstacksso:hover {
+	background-color: white;
+}

@@ -1,11 +1,28 @@
 {
 	"@metadata": {
 		"authors": [
-			"Nad"
+			"Aran dunkley", "Florian Schmidt"
 		]
 	},
-	"blockstack-desc": "Allows users to login to the wiki with their decentralised Blockstack identity.",
-	"blockstack-login-create-on": "Please enter an account name in the wiki and a password. If the account already exsists, then the password must be correct to allow your blockstack ID to be linked to it. If it does not exist, the account will be created and the password will be needed if blockstack logins are later disabled.",
-	"blockstack-login-create-off": "Please enter an existing account name in the wiki to link your Blockstack ID to, and the password for the account.",
-	"blockstack-wrongpass": "The password for this account is incorrect, please enter the correct password or use a different username."
+	"blockstacksso": "Log in with Blockstack",
+	"blockstacksso-auth-service-name": "Blockstack",
+	"blockstacksso-create": "Create with Blockstack",
+	"blockstacksso-desc": "Allow users to login with a Blockstack account",
+	"blockstacksso-generic-error": "Oops, there was an error. Please go back and try again. Message: $1",
+	"blockstacksso-external-error": "The external site refused to authenticate you or encountered an error. Please try it again or contact the administrator of the site. The message was: $1",
+	"blockstacksso-form-merge": "Link Blockstack to wiki account",
+	"blockstacksso-form-unlink": "Unlink Blockstack from wiki account",
+	"blockstacksso-link-other": "Your Blockstack account is already linked to another user. Please unlink the connection or contact an administrator, if you have no other wiki account.",
+	"blockstacksso-link-same": "Your Blockstack account is already linked to your user, so you can't link it again.",
+	"blockstacksso-error-no-authentication-workflow": "You requested to continue an already started Blockstack authentication workflow, but there's no one that is already started. Please start a new authentication workflow by trying to login again.",
+	"blockstacksso-loginbutton-help": "Authenticates you with your Blockstack account.",
+	"blockstacksso-link-help": "Link your wiki account with your Blockstack account.",
+	"blockstacksso-param-error-label": "Error code returned from Blockstack",
+	"blockstacksso-param-error-help": "In case of an authentication failure, the error code returned from Blockstack.",
+	"blockstacksso-param-code-label": "Access token from Blockstack",
+	"blockstacksso-param-code-help": "In case of a successful authentication, the access token returned from Blockstack.",
+	"blockstacksso-change-account-not-linked": "You can not remove a Blockstack account connection, because your account isn't connected with a Blockstack account.",
+	"blockstacksso-auth-service-unknown-account": "Unknown Blockstack account",
+	"blockstacksso-access-denied": "Unable to log in. You denied the access to your Blockstack account information.",
+	"blockstacksso-local-exists": "You successfully logged into your Blockstack account. However, an account with the user name $1 already exists in {{SITENAME}} and is not connected with your Blockstack account, so you couldn't be logged in. See [https://www.mediawiki.org/wiki/Special:MyLanguage/Help:Extension:BlockstackAuth/LocalExists the help page] for this error to get more information."
 }

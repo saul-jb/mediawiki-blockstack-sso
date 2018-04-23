@@ -1,19 +1,23 @@
 <?php
-use MediaWiki\MediaWikiServices;
-class BlockstackUser {
+namespace BlockstackSso;
 
+use MediaWiki\MediaWikiServices;
+use User;
+use BlockstackBDClient\Clients\UnauthenticatedClient;
+
+class BlockstackUser {
 	/**
 	 * @var string The Blockstack User ID of this object
 	 */
-	private $blockstackUserId = '';
+	private $xfUserId = '';
 	private $userData = null;
 
 	/**
 	 * BlockstackUser constructor.
-	 * @param integer $blockstackUserId The Blockstack User ID
+	 * @param integer $xfUserId The Blockstack User ID
 	 */
-	private function __construct( $blockstackUserId ) {
-		$this->blockstackUserId = $blockstackUserId;
+	private function __construct( $xfUserId ) {
+		$this->xfUserId = $xfUserId;
 	}
 
 	/**
@@ -21,21 +25,23 @@ class BlockstackUser {
 	 * will start a request to the XenFor API to find out the information about
 	 * the Blockstack User.
 	 *
-	 * @param int $blockstackUserId The Blockstack User ID
+	 * @param int $xfUserId The Blockstack User ID
 	 * @return BlockstackUser
 	 */
-	public static function newFromBlockstackUserId( $blockstackUserId ) {
-		$user = new self( $blockstackUserId );
+	public static function newFromXFUserId( $xfUserId ) {
+		$user = new self( $xfUserId );
 		$user->init();
+
 		return $user;
 	}
 
 	/**
 	 * Creates a new Blockstack User object based on the given user data. This
-	 * function will not start a request to the Blockstack API and takes the
+	 * function will not start a request to the XenFor API and takes the
 	 * information given in the $userInfo array as they are.
 	 *
-	 * @param array $userInfo An array of information about the user returned by the Blockstack API
+	 * @param array $userInfo An array of information about the user returned by the Blockstack
+	 * OAuth2 api
 	 * @return BlockstackUser|null Returns the Blockstack User object or null, if the
 	 *  $userInfo array does not contain an "user_id" key.
 	 */
@@ -50,6 +56,7 @@ class BlockstackUser {
 		}
 		$user = new self( $userInfo['user']['user_id'] );
 		$user->userData = $userInfo['user'];
+
 		return $user;
 	}
 
@@ -57,15 +64,16 @@ class BlockstackUser {
 	 * Loads the data of the person represented by the Blockstack User ID.
 	 */
 	private function init() {
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'blockstackauth' );
+		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'blockstacksso' );
 		$client = new UnauthenticatedClient();
-		$client->setBaseUrl( $config->get( 'BlockstackAuthBaseUrl' ) );
+		$client->setBaseUrl( $config->get( 'BlockstackSsoBaseUrl' ) );
 		$user = new \BlockstackBDClient\Users\User( $client );
-		$userInfo = $user->get( $this->blockstackUserId );
+		$userInfo = $user->get( $this->xfUserId );
 		if ( $userInfo ) {
 			$this->userData = $userInfo['user'];
 		}
 	}
+
 	/**
 	 * Returns the requested user data of the user.
 	 *
@@ -87,9 +95,9 @@ class BlockstackUser {
 	 */
 	public function getFullNameWithId() {
 		if ( $this->getData( 'username' ) ) {
-			return $this->getData( 'username' ) . ' ' . wfMessage( 'parentheses', $this->blockstackUserId );
+			return $this->getData( 'username' ) . ' ' . wfMessage( 'parentheses', $this->xfUserId );
 		}
-		return $this->blockstackUserId;
+		return $this->xfUserId;
 	}
 
 	/**
@@ -103,12 +111,12 @@ class BlockstackUser {
 	/**
 	 * Check, if the Blockstack user ID is already connected to another wiki account or not.
 	 *
-	 * @param string $blockstackUserId
+	 * @param string $xfUserId
 	 * @param int $flags
 	 * @return bool
 	 */
-	public static function isBlockstackUserIdFree( $blockstackUserId, $flags = User::READ_LATEST ) {
-		return self::getUserFromBlockstackUserId( $blockstackUserId, $flags ) === null;
+	public static function isXFUserIdFree( $xfUserId, $flags = User::READ_LATEST ) {
+		return self::getUserFromXFUserId( $xfUserId, $flags ) === null;
 	}
 
 	/**
@@ -119,20 +127,24 @@ class BlockstackUser {
 	 * @return null|int Null, if no Blockstack user ID connected with this User ID, the id
 	 * otherwise
 	 */
-	public static function getBlockstackUserIdFromUser( User $user, $flags = User::READ_LATEST ) {
-		$db = ( $flags & User::READ_LATEST ) ? wfGetDB( DB_MASTER ) : wfGetDB( DB_REPLICA );
+	public static function getXFUserIdFromUser( User $user, $flags = User::READ_LATEST ) {
+		$db = ( $flags & User::READ_LATEST )
+			? wfGetDB( DB_MASTER )
+			: wfGetDB( DB_REPLICA );
+
 		$s = $db->select(
 			'user_blockstack_user',
-			[ 'user_blockstackuserid' ],
+			[ 'user_xfuserid' ],
 			[ 'user_id' => $user->getId() ],
 			__METHOD__,
 			( ( $flags & User::READ_LOCKING ) == User::READ_LOCKING )
 				? [ 'LOCK IN SHARE MODE' ]
 				: []
 		);
+
 		if ( $s !== false ) {
 			foreach ( $s as $obj ) {
-				return $obj->user_blockstackuserid;
+				return $obj->user_xfuserid;
 			}
 		}
 		// Invalid user_id
@@ -143,22 +155,26 @@ class BlockstackUser {
 	 * Helper function for load* functions. Loads the Blockstack Id from a
 	 * User Id set to this object.
 	 *
-	 * @param string $blockstackUserId The Blockstack User ID to get the user to
+	 * @param string $xfUserId The Blockstack User ID to get the user to
 	 * @param int $flags User::READ_* constant bitfield
 	 * @return null|User The local User account connected with the Blockstack user ID if
 	 * the Blockstack user ID is connected to an User, null otherwise.
 	 */
-	public static function getUserFromBlockstackUserId( $blockstackUserId, $flags = User::READ_LATEST ) {
-		$db = ( $flags & User::READ_LATEST ) ? wfGetDB( DB_MASTER ) : wfGetDB( DB_REPLICA );
+	public static function getUserFromXFUserId( $xfUserId, $flags = User::READ_LATEST ) {
+		$db = ( $flags & User::READ_LATEST )
+			? wfGetDB( DB_MASTER )
+			: wfGetDB( DB_REPLICA );
+
 		$s = $db->selectRow(
 			'user_blockstack_user',
 			[ 'user_id' ],
-			[ 'user_blockstackuserid' => $blockstackUserId ],
+			[ 'user_xfuserid' => $xfUserId ],
 			__METHOD__,
 			( ( $flags & User::READ_LOCKING ) == User::READ_LOCKING )
 				? [ 'LOCK IN SHARE MODE' ]
 				: []
 		);
+
 		if ( $s !== false ) {
 			// Initialise user table data;
 			return User::newFromId( $s->user_id );
@@ -174,8 +190,8 @@ class BlockstackUser {
 	 * @param User $user The user to check
 	 * @return bool
 	 */
-	public static function hasConnectedBlockstackUserAccount( User $user ) {
-		return (bool)self::getBlockstackUserIdFromUser( $user );
+	public static function hasConnectedXFUserAccount( User $user ) {
+		return (bool)self::getXFUserIdFromUser( $user );
 	}
 
 	/**
@@ -183,12 +199,11 @@ class BlockstackUser {
 	 * connected Blockstack account.
 	 *
 	 * @param User $user The user to connect from where to remove the connection
-	 * @param string $blockstackUserId The Blockstack ID to remove
+	 * @param string $xfUserId The Blockstack ID to remove
 	 * @return bool
 	 */
-	public static function terminateBlockstackUserConnection( User $user, $blockstackUserId ) {
-		$connectedId = self::getBlockstackUserIdFromUser( $user );
-
+	public static function terminateXFUserConnection( User $user, $xfUserId ) {
+		$connectedId = self::getXFUserIdFromUser( $user );
 		// make sure, that the user has a connected user account
 		if ( $connectedId === null ) {
 			// already terminated
@@ -197,12 +212,11 @@ class BlockstackUser {
 
 		// get DD master
 		$dbr = wfGetDB( DB_MASTER );
-
 		// try to delete the row with this blockstack id
 		if (
 			$dbr->delete(
 				"user_blockstack_user",
-				"user_blockstackuserid = " . $blockstackUserId,
+				"user_xfuserid = " . $xfUserId,
 				__METHOD__
 			)
 		) {
@@ -217,16 +231,17 @@ class BlockstackUser {
 	 * Insert's or update's the Blockstack ID connected with this user account.
 	 *
 	 * @param User $user The user to connect the Blockstack ID with
-	 * @param String $blockstackUserId The new Blockstack ID
+	 * @param String $xfUserId The new Blockstack ID
 	 * @return bool Whether the insert/update statement was successful
 	 */
-	public static function connectWithBlockstackUser( User $user, $blockstackUserId ) {
+	public static function connectWithBlockstackUser( User $user, $xfUserId ) {
 		$dbr = wfGetDB( DB_MASTER );
+
 		return $dbr->insert(
 			"user_blockstack_user",
 			[
 				'user_id' => $user->getId(),
-				'user_blockstackuserid' => $blockstackUserId
+				'user_xfuserid' => $xfUserId
 			]
 		);
 	}

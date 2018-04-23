@@ -1,41 +1,59 @@
 {
-	"name": "BlockstackSso",
-	"version": "0.0.1",
-	"author": ["[https://organicdesign.nz/aran Aran Dunkley]", "Florian Schmidt"],
-	"url": "https://github.com/saul-avikar/mediawiki-blockstack-sso",
-	"descriptionmsg": "blockstack-desc",
+	"name": "BlockstackSSO",
+	"version": "0.1.0",
+	"author": ["Aran Dunkley", "Florian Schmidt"],
+	"url": "https://www.mediawiki.org/wiki/Extension:BlockstackSSO",
+	"descriptionmsg": "blockstacksso-desc",
 	"license-name": "MIT",
 	"type": "auth",
-	"callback": "Blockstack::onRegistration",
+	"callback": "BlockstackSso::onRegistration",
 	"requires": {
 		"MediaWiki": ">= 1.28.0"
 	},
+	"ConfigRegistry": {
+		"blockstacksso": "GlobalVarConfig::newInstance"
+	},
 	"MessagesDirs": {
-		"Blockstack": ["i18n"]
-	},	
+		"BlockstackSso": [
+			"i18n"
+		]
+	},
+	"Hooks": {
+		"AuthChangeFormFields": "BlockstackSso::onAuthChangeFormFields",
+		"UnknownAction": "BlockstackSso::onUnknownAction"
+	},
 	"AutoloadClasses": {
-		"Blockstack": "Blockstack.php",
-		"BlockstackUser": "BlockstackUser.php",
-		"BlockstackPrimaryAuthProvider": "auth/BlockstackPrimaryAuthProvider.php",
-		"BlockstackAuthRequest": "auth/BlockstackAuthRequest.php",
-		"BlockstackRemoveAuthRequest": "auth/BlockstackRemoveAuthRequest.php",
-		"BlockstackServerAuthRequest": "auth/BlockstackServerAuthRequest.php",
-		"BlockstackUserInfoAuthRequest": "auth/BlockstackUserInfoAuthRequest.php"
+		"BlockstackCommon": "BlockstackCommon/BlockstackCommon.php",
+		"BlockstackSso": "BlockstackSso.php",
+		"BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider": "auth/BlockstackPrimaryAuthenticationProvider.php",
+		"BlockstackSso\\Auth\\BlockstackAuthenticationRequest": "auth/BlockstackAuthenticationRequest.php",
+		"BlockstackSso\\Auth\\BlockstackRemoveAuthenticationRequest": "auth/BlockstackRemoveAuthenticationRequest.php",
+		"BlockstackSso\\Auth\\BlockstackServerAuthenticationRequest": "auth/BlockstackServerAuthenticationRequest.php",
+		"BlockstackSso\\Auth\\BlockstackUserInfoAuthenticationRequest": "auth/BlockstackUserInfoAuthenticationRequest.php",
+		"BlockstackSso\\BlockstackUser": "BlockstackUser.php",
+		"BlockstackSso\\BlockstackResourceLoaderModule": "BlockstackResourceLoaderModule.php"
 	},
 	"AuthManagerAutoConfig": {
 		"primaryauth": {
-			"BlockstackPrimaryAuthProvider": {
-				"class": "BlockstackPrimaryAuthProvider",
+			"BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider": {
+				"class": "BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider",
 				"sort": 102
 			}
 		}
 	},
 	"ResourceModules": {
-		"ext.blockstack": {
-			"scripts": ["blockstack.js"]
+		"ext.blockstackcommon": {
+			"scripts": [
+				"blockstack-common.min.js"
+			]
+		},
+		"ext.blockstacksso": {
+			"scripts": [
+				"blockstacksso.js"
+			]
 		}
 	},
-	"@": "The paths will be calculated at runtime",
+	"@": "The paths will be populated later as it needs be calculated",
 	"ResourceFileModulePaths": {
 		"localBasePath": "",
 		"remoteExtPath": ""

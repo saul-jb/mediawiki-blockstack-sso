@@ -176,7 +176,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
-		wfDebugLog('Foo', __METHOD__);
+		wfDebugLog('Foo - '.__METHOD__, $req->action . ' : ' . $req->username);
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if ( $user && $req->getBlockstackUserId() === BlockstackUser::getXFUserIdFromUser( $user ) ) {

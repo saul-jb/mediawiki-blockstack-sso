@@ -42,11 +42,17 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if( $_GET['type'] = 'blockstack' ) {
 			wfDebugLog('Foo', 'begin primary auth');
 			//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
+			
+			/**
+			 * authenticate the request, check if the account is already linked and if so log in
+			 */
+			
 			return AuthenticationResponse::newPass( 'Nad' );
 		} else return AuthenticationResponse::newAbstain();
 	}
 
 	public function continuePrimaryAuthentication( array $reqs ) {
+		wfDebugLog('Foo', 'continuing primary auth');
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
@@ -118,12 +124,14 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function getAuthenticationRequests( $action, array $options ) {
 		switch ( $action ) {
 			case AuthManager::ACTION_LOGIN:
+				wfDebugLog('Foo', 'ACTION_LOGIN');
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso' ),
 					wfMessage( 'blockstacksso-loginbutton-help' )
 				) ];
 				break;
 			case AuthManager::ACTION_LINK:
+				wfDebugLog('Foo', 'ACTION_LINK');
 				// TODO: Probably not the best message currently.
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso-form-merge' ),
@@ -131,6 +139,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				) ];
 				break;
 			case AuthManager::ACTION_REMOVE:
+				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
 				if ( !$user || !BlockstackUser::hasConnectedXFUserAccount( $user ) ) {
 					return [];
@@ -139,6 +148,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				return [ new BlockstackRemoveAuthenticationRequest( $xfUserId ) ];
 				break;
 			case AuthManager::ACTION_CREATE:
+				wfDebugLog('Foo', 'ACTION_CREATE');
 				// TODO: ACTION_CREATE doesn't really need all
 				// the things provided by inheriting
 				// ButtonAuthenticationRequest, so probably it's better

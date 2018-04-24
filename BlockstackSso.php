@@ -18,7 +18,8 @@ class BlockstackSso {
 	public function setup() {
 		global $wgRequest, $wgGroupPermissions, $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
 
-		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $wgGroupPermissions['*']['read'] = true;
+		// Not using UnknownAction hook since we need to bypass permissions
+		if( $wgRequest->getText('action') == 'blockstack-manifest' ) self::returnManifest();
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
@@ -54,26 +55,24 @@ class BlockstackSso {
 	/**
 	 * Return the JSON manifest with the correct headers and exit
 	 */
-	public static function onUnknownAction( $action, $article ) {
+	public static function returnManifest() {
 		global $wgOut, $wgSitename, $wgServer, $wgLogo;
-		if( $action == 'blockstack-manifest' ) {
-			$wgOut->disable();
-			header( 'Content-Type: application/json' );
-			header("Access-Control-Allow-Origin: *");
-			$manifest = [
-				"name" => $wgSitename,
-				"start_url" => $wgServer,
-				"description" => wfMessage( 'sitesubtitle' )->text(),
-				"icons" => [
-					[
-						"src" => $wgLogo,
-						"type" => 'image/' . ( preg_match( '|^.+(.\w+)$|', $wgLogo, $m ) ? $m[1] : 'jpg' )
-					]
+		$wgOut->disable();
+		header( 'Content-Type: application/json' );
+		header("Access-Control-Allow-Origin: *");
+		$manifest = [
+			"name" => $wgSitename,
+			"start_url" => $wgServer,
+			"description" => wfMessage( 'sitesubtitle' )->text(),
+			"icons" => [
+				[
+					"src" => $wgLogo,
+					"type" => 'image/' . ( preg_match( '|^.+(.\w+)$|', $wgLogo, $m ) ? $m[1] : 'jpg' )
 				]
-			];
-			echo json_encode( $manifest );
-			self::restInPeace();
-		}
+			]
+		];
+		echo json_encode( $manifest );
+		self::restInPeace();
 	}
 
 	/**

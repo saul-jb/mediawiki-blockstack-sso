@@ -19,8 +19,7 @@
 		]
 	},
 	"Hooks": {
-		"AuthChangeFormFields": "BlockstackSso::onAuthChangeFormFields",
-		"UnknownAction": "BlockstackSso::onUnknownAction"
+		"AuthChangeFormFields": "BlockstackSso::onAuthChangeFormFields"
 	},
 	"AutoloadClasses": {
 		"BlockstackCommon": "BlockstackCommon/BlockstackCommon.php",

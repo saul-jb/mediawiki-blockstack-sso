@@ -21,7 +21,7 @@ $(document).ready(function() {
 				+ mw.config.get('wgScript')
 				+ '?title=' + mw.config.get('wgPageName')
 				+ '&type=blockstack'
-				+ '&token=' + document.userlogin.wpLoginToken.value;
+				+ '&token=' + encodeURIComponent( document.userlogin.wpLoginToken.value );
 			var manUrl = mw.config.get( 'blockstackManifestUrl' );
 
 			// Test-image height is non-zero, Blockstack dapp is serving on local port 8888

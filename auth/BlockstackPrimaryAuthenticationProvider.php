@@ -36,6 +36,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function beginPrimaryAuthentication( array $reqs ) {
 		//return $this->beginBlockstackAuthentication( $reqs, self::BLOCKSTACK_BUTTONREQUEST_NAME );
 		if( $_GET['type'] = 'blockstack' ) {
+			wfDebugLog('Foo', 'begin primary auth');
 			return MediaWiki\Auth\AuthenticationResponse::newPass( $this->info['nad'] );
 		} else return AuthenticationResponse::newAbstain();
 	}

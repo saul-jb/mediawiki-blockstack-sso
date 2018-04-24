@@ -7,10 +7,7 @@ class BlockstackSso {
 	 * Called when the extension is first loaded
 	 */
 	public static function onRegistration() {
-		global $wgExtensionFunctions, $wgRequest, $wgGroupPermissions;
-
-		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $wgGroupPermissions['*']['read'] = true;
-
+		global $wgExtensionFunctions;
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
 	}
@@ -19,7 +16,9 @@ class BlockstackSso {
 	 * Called at extension setup time, install hooks and module resources
 	 */
 	public function setup() {
-		global $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
+		global $wgRequest, $wgGroupPermissions, $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
+
+		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $wgGroupPermissions['*']['read'] = true;
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );

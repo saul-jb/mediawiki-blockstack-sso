@@ -176,6 +176,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
+		wfDebugLog('Foo', __METHOD__);
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if ( $user && $req->getBlockstackUserId() === BlockstackUser::getXFUserIdFromUser( $user ) ) {
@@ -188,6 +189,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
+		wfDebugLog('Foo', __METHOD__);
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			BlockstackUser::terminateXFUserConnection( $user, $req->getBlockstackUserId() );
@@ -251,10 +253,12 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function beginPrimaryAccountLink( $user, array $reqs ) {
+		wfDebugLog('Foo', __METHOD__);
 		return $this->beginBlockstackAuthentication( $reqs, self::BLOCKSTACK_BUTTONREQUEST_NAME );
 	}
 
 	public function continuePrimaryAccountLink( $user, array $reqs ) {
+		wfDebugLog('Foo', __METHOD__);
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(

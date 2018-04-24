@@ -1,20 +1,26 @@
+/**
+ * Here we redirect to the Blockstack browser to do the authentication using the BlockstackCommon.login() method.
+ * First we detect if the local Blockstack dapp is present, and if not we fall back onto the web-based service intead.
+ *
+ * This detection is rather difficult because the services are on HTTP, but our site may be on HTTPS in which case
+ * an non-HTTPS XHR request will not be allowed.
+ * 
+ * To get around this, an image can be loaded from the dapp service though without this limitation, we can then test after a small
+ * delay (100ms) whether we have a non-zero height for the image.
+ */
 $(document).ready(function() {
 	$('#mw-input-blockstacksso').click(function() {
 
-		/**
-		 * This image preload is a test of local Blockstack dapp presence
-		 * even though there is a local service on port 1337 that can be tested without CORS trouble,
-		 * it can't get around the "mixed content" problem (requesting http://localhost:1337 from an HTTPS page over XHR).
-		 * An image can be loaded from the dapp service though without these limitations, we can then test after a small
-		 * delay (100ms) whether we have a non-zero height for the image.
-		 */
+		// Request the test image from the local dapp service
 		var img = new Image()
 		img.src = 'http://localhost:8888/images/icon-nav-profile.svg';
+
+		// Wait 100ms to give the image time to load and then start the redirect procedure
 		setTimeout(function() {
 			var retUrl = mw.config.get('wgServer') + mw.config.get('wgScript') + '?title=' + mw.config.get('wgPageName');
 			var manUrl = mw.config.get( 'blockstackManifestUrl' );
 
-			// Image height is non-zero, Blockstack dapp is serving on local port 8888
+			// Test-image height is non-zero, Blockstack dapp is serving on local port 8888
 			if(img.height > 0) {
 				console.log('Local blockstack CORS proxy responded, using local service');
 				BlockstackCommon.login( retUrl, manUrl, 'http://localhost:8888' ).then((url) => {
@@ -24,9 +30,9 @@ $(document).ready(function() {
 				});
 			}
 
-			// Image height is zero, fallback to web-based Blockstack service
+			// Test-image height is zero, fallback to web-based Blockstack service
 			else {
-				console.log('Local blockstack CORS roxy not present, falling back on web service');
+				console.log('Local blockstack CORS proxy not present, falling back on web service');
 				BlockstackCommon.login( retUrl, manUrl ).then((url) => {
 					window.location.replace(url);
 				}).catch((err) => {
@@ -34,6 +40,5 @@ $(document).ready(function() {
 				});
 			}
 		}, 100);
-
 	});
 });

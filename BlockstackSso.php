@@ -3,6 +3,8 @@ class BlockstackSso {
 
 	public static $instance = null;
 
+	private static $authResponse;
+
 	/**
 	 * Called when the extension is first loaded
 	 */
@@ -12,8 +14,15 @@ class BlockstackSso {
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
 
 		if( array_key_exists( 'type', $_GET ) && $_GET['type'] == 'blockstack' ) {
+			self::$authResponse = $_GET['authResponse'];
+			$_SERVER['REQUEST_METHOD'] = 'POST';
+			$_SERVER['REQUEST_URI'] = preg_replace( '|\?.+$|', '', $_SERVER['REQUEST_URI'] );
+			$_SERVER['QUERY_STRING'] = '';
 			$_POST['wpLoginToken'] = $_GET['token'];
 			$_POST['authAction'] = 'login';
+			$_POST['force'] = '';
+			$_POST['wpName'] = '';
+			$_POST['wpPassword'] = '';
 			wfDebugLog( 'Foo', 'changing blockstack auth response into a login form submission' );
 		}
 

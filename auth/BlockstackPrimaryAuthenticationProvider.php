@@ -123,6 +123,8 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 	public function getAuthenticationRequests( $action, array $options ) {
 		switch ( $action ) {
+
+			// When first visiting the login page
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
 				return [ new BlockstackAuthenticationRequest(
@@ -164,14 +166,12 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function testUserExists( $username, $flags = User::READ_NORMAL ) {
+		wfDebugLog('Foo - test user exists', $username);
 		return false;
 	}
 
 	public function testUserCanAuthenticate( $username ) {
-		$user = User::newFromName( $username );
-		if ( $user ) {
-			return BlockstackUser::hasConnectedXFUserAccount( $user );
-		}
+		wfDebugLog('Foo - test user can auth', $username);
 		return false;
 	}
 

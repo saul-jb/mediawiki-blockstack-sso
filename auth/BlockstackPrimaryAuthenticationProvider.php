@@ -25,6 +25,7 @@ use BlockstackBDClient\Clients\OAuth2Client;
  * authenticates the user.
  */
 class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticationProvider {
+
 	/** Name of the button of the BlockstackAuthenticationRequest */
 	const BLOCKSTACK_BUTTONREQUEST_NAME = 'blockstacksso';
 
@@ -33,17 +34,20 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 */
 	private $autoCreateLinkRequest;
 
+	/**
+	 * We only begin the authentication if we have type=blockstack in the query string which means the client-side
+	 * Blockstack authentication has made this request including the authentication info we must validate
+	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
-		//return $this->beginBlockstackAuthentication( $reqs, self::BLOCKSTACK_BUTTONREQUEST_NAME );
 		if( $_GET['type'] = 'blockstack' ) {
 			wfDebugLog('Foo', 'begin primary auth');
-			return MediaWiki\Auth\AuthenticationResponse::newPass( $this->info['nad'] );
+			//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
+			return AuthenticationResponse::newPass( 'Nad' );
 		} else return AuthenticationResponse::newAbstain();
 	}
 
 	public function continuePrimaryAuthentication( array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs,
-			BlockstackServerAuthenticationRequest::class );
+		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
 				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
@@ -101,10 +105,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function autoCreatedAccount( $user, $source ) {
-		if (
-			$this->autoCreateLinkRequest !== null &&
-			isset( $this->autoCreateLinkRequest->userInfo['user_id'] )
-		) {
+		if ( $this->autoCreateLinkRequest !== null && isset( $this->autoCreateLinkRequest->userInfo['user_id'] ) ) {
 			BlockstackUser::connectWithBlockstackUser( $user,
 				$this->autoCreateLinkRequest->userInfo['user_id'] );
 			if ( isset( $this->autoCreateLinkRequest->userInfo['user_email'] ) ) {
@@ -164,18 +165,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		return false;
 	}
 
-	public function providerAllowsAuthenticationDataChange(
-		AuthenticationRequest $req, $checkData = true
-	) {
-		if (
-			get_class( $req ) === BlockstackRemoveAuthenticationRequest::class &&
-			$req->action === AuthManager::ACTION_REMOVE
-		) {
+	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
+		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
-			if (
-				$user &&
-				$req->getBlockstackUserId() === BlockstackUser::getXFUserIdFromUser( $user )
-			) {
+			if ( $user && $req->getBlockstackUserId() === BlockstackUser::getXFUserIdFromUser( $user ) ) {
 				return StatusValue::newGood();
 			} else {
 				return StatusValue::newFatal( wfMessage( 'blockstacksso-change-account-not-linked' ) );
@@ -185,10 +178,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
-		if (
-			get_class( $req ) === BlockstackRemoveAuthenticationRequest::class &&
-			$req->action === AuthManager::ACTION_REMOVE
-		) {
+		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			BlockstackUser::terminateXFUserConnection( $user, $req->getBlockstackUserId() );
 		}
@@ -203,8 +193,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function beginPrimaryAccountCreation( $user, $creator, array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs,
-			BlockstackUserInfoAuthenticationRequest::class );
+		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackUserInfoAuthenticationRequest::class );
 		if ( $request ) {
 			if ( BlockstackUser::isXFUserIdFree( $request->userInfo['user_id'] ) ) {
 				$resp = AuthenticationResponse::newPass();
@@ -216,8 +205,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function continuePrimaryAccountCreation( $user, $creator, array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs,
-			BlockstackServerAuthenticationRequest::class );
+		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
 				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
@@ -257,8 +245,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function continuePrimaryAccountLink( $user, array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs,
-			BlockstackServerAuthenticationRequest::class );
+		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail(
 				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
@@ -290,22 +277,5 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				wfMessage( 'blockstacksso-generic-error', $e->getMessage() )
 			);
 		}
-	}
-
-	/**
-	 * Handler for a primary authentication, which currently begins. Checks, if the Authentication
-	 * request can be handled by BlockstackSso and, if so, returns an AuthenticationResponse that
-	 * redirects to the external authentication site, otherwise returns an abstain response.
-	 * @param array $reqs
-	 * @param $buttonAuthenticationRequestName
-	 * @return AuthenticationResponse
-	 */
-	private function beginBlockstackAuthentication( array $reqs, $buttonAuthenticationRequestName ) {
-		if( $wgRequest->getText('type') == 'blockstack' ) wfDebugLog( 'Foo', 'baz' );
-		$req = BlockstackAuthenticationRequest::getRequestByName( $reqs, $buttonAuthenticationRequestName );
-		if ( !$req ) {
-			return AuthenticationResponse::newAbstain();
-		}
-		return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
 	}
 }

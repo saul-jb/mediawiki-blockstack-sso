@@ -7,7 +7,10 @@ class BlockstackSso {
 	 * Called when the extension is first loaded
 	 */
 	public static function onRegistration() {
-		global $wgExtensionFunctions;
+		global $wgExtensionFunctions, $wgRequest, $wgGroupPermissions;
+
+		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $wgGroupPermissions['*']['read'] = true;
+
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
 	}

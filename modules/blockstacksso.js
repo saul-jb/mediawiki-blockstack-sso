@@ -17,7 +17,10 @@ $(document).ready(function() {
 
 		// Wait 100ms to give the image time to load and then start the redirect procedure
 		setTimeout(function() {
-			var retUrl = mw.config.get('wgServer') + mw.config.get('wgScript') + '?title=' + mw.config.get('wgPageName');
+			var retUrl = mw.config.get('wgServer')
+				+ mw.config.get('wgScript')
+				+ '?title=' + mw.config.get('wgPageName')
+				+ '&wpLoginToken=' + document.userlogin.wpLoginToken.value;
 			var manUrl = mw.config.get( 'blockstackManifestUrl' );
 
 			// Test-image height is non-zero, Blockstack dapp is serving on local port 8888

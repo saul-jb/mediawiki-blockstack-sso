@@ -297,11 +297,11 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 * @return AuthenticationResponse
 	 */
 	private function beginBlockstackAuthentication( array $reqs, $buttonAuthenticationRequestName ) {
+		if( $wgRequest->getText('type') == 'blockstack' ) wfDebugLog( 'Foo', 'baz' );
 		$req = BlockstackAuthenticationRequest::getRequestByName( $reqs, $buttonAuthenticationRequestName );
 		if ( !$req ) {
 			return AuthenticationResponse::newAbstain();
 		}
-		wfDebugLog( 'Foo', $req->returnToUrl );
 		return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
 	}
 }

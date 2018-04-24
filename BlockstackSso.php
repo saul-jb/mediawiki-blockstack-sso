@@ -10,6 +10,15 @@ class BlockstackSso {
 		global $wgExtensionFunctions;
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
+
+		if( array_key_exists( 'wpLoginToken', $_GET ) ) {
+			$_POST['wpLoginToken'] = $_GET['wpLoginToken'];
+			$_POST['authAction'] = 'login';
+			unset( $_GET['wpLoginToken'] );
+			wfDebugLog( 'Foo', 'changing blockstack redirect to POST' );
+		}
+
+
 	}
 
 	/**

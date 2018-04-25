@@ -1,7 +1,7 @@
 window.validate = function() {
 	console.log('Validating Blockstack response...');
 	BlockstackCommon.isSignedIn().then(function(userData) {
-		console.log(userDate);
+		console.log(userData);
 		/*
 		var url = window.location.orgin + "/authenticate";
 

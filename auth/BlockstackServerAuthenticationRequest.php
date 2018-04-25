@@ -17,13 +17,13 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 		return [
 			'username' => [
 				'type' => 'string',
-				'label' => wfMessage( 'username' ),
+				'label' => wfMessage( 'userlogin-yourname' ),
 				'help' => wfMessage( 'blockstacklogin-username-help' ),
 				'optional' => false,
 			],
 			'password' => [
 				'type' => 'password',
-				'label' => wfMessage( 'password' ),
+				'label' => wfMessage( 'userlogin-yourpassword' ),
 				'help' => wfMessage( 'blockstacklogin-password-help' ),
 				'optional' => false,
 			],

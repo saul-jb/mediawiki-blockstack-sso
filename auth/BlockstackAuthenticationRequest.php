@@ -2,7 +2,6 @@
 /**
  * BlockstackAuthenticationRequest implementation
  */
-
 namespace BlockstackSso\Auth;
 
 use MediaWiki\Auth\AuthManager;

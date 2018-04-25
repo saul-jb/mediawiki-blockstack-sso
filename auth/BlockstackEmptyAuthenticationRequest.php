@@ -1,5 +1,8 @@
 <?php
+namespace BlockstackSso\Auth;
+
 use MediaWiki\Auth\AuthenticationRequest;
+
 class BlockstackEmptyAuthenticationRequest extends AuthenticationRequest {
 
 	public static function getUsernameFromRequests( array $reqs ) {

@@ -27,7 +27,7 @@ use BlockstackBDClient\Clients\OAuth2Client;
 class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticationProvider {
 
 	/** Name of the button of the BlockstackAuthenticationRequest */
-	const BLOCKSTACK_BUTTONREQUEST_NAME = 'blockstacksso';
+	const BLOCKSTACK_BUTTON = 'blockstacksso';
 
 	/**
 	 * @var null|BlockstackUserInfoAuthenticationRequest
@@ -41,18 +41,17 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function beginPrimaryAuthentication( array $reqs ) {
 
 		// If we already have our Blockstack authentication...
-		if( $_GET['type'] = 'blockstack' ) {
+		if( \BlockstackSso::$blockstackRequest ) {
 			wfDebugLog('Foo', 'begin primary auth');
 
-			// Check if this Blockstack ID already exists, and if so login now
+			// Check if this Blockstack ID is already linked to an account, and if so login now
 			if( 0&&ID_EXISTS ) {
 				// get the wiki user from the Blockstack ID
 				return AuthenticationResponse::newPass( 'Nad' );
 			}
 
-			// No, we need to get the account we want to link to,
+			// No it's not linked yet, we need to ask the user for the linking account
 			else {				
-				wfDebugLog('Foo', get_class($reqs));
 				return AuthenticationResponse::newUI( [new BlockstackServerAuthenticationRequest($reqs)], wfMessage( 'blockstacksso-form-merge' ) );
 			}
 
@@ -138,7 +137,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				wfDebugLog('Foo', 'ACTION_LOGIN');
 
 				// If we have the Blockstack authentication result, skip the form
-				if( $_GET['type'] == 'blockstack' ) {
+				if( \BlockstackSso::$blockstackRequest ) {
 					wfDebugLog('Foo', 'We have our result, skipping form');
 					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
 					return [];

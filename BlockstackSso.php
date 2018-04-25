@@ -4,6 +4,8 @@ class BlockstackSso {
 	public static $instance = null;
 
 	private static $authResponse;
+	
+	public static $blockstackRequest = false;
 
 	/**
 	 * Called when the extension is first loaded
@@ -13,15 +15,30 @@ class BlockstackSso {
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
 
+		/* If this is a Blockstack athentication response?
 		if( array_key_exists( 'type', $_GET ) && $_GET['type'] == 'blockstack' ) {
-			self::$authResponse = $_GET['authResponse'];
-			$_SERVER['REQUEST_METHOD'] = 'POST';
-			$_POST['wpLoginToken'] = $_GET['token'];
-			$_POST['authAction'] = 'login';
-			$_POST['blockstacksso'] = 'login';
-			wfDebugLog( 'Foo', 'changing blockstack auth response into a login form submission' );
-		}
+			self::blockstackRequest = true;
 
+			// Does the response require authenticating?
+			if( array_key_exists( 'authResponse', $_GET ) ) {
+
+				// We need to return a minimal JS page that resolves the response
+				// - this is because Blockstack requires the response to be authenicated client-side
+				// - it also allows us to POST the data as if it were from the normal login form
+				self::$authResponse = $_GET['authResponse'];
+			}
+
+			// It's already authenticated, convert the data to look like a MediaWiki login form submission
+			else {
+				$_SERVER['REQUEST_METHOD'] = 'POST';
+				$_POST['wpName'] = $_GET['wpName'];
+				$_POST['wpLoginToken'] = $_GET['token'];
+				$_POST['authAction'] = 'login';
+				$_POST[\BlockstackSso\Auth\BlockstackPrimaryAuthenticationProvider::BLOCKSTACK_BUTTON] = 'login';
+				wfDebugLog( 'Foo', 'changing blockstack auth response into a login form submission' );
+			}
+		}
+		*/
 
 	}
 
@@ -31,11 +48,14 @@ class BlockstackSso {
 	public function setup() {
 		global $wgRequest, $wgGroupPermissions, $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
 
-		// Not using UnknownAction hook since we need to bypass permissions
+		// Get script path accounting for symlinks
+		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
+
+		// Not using UnknownAction hook for these since we need to bypass permissions
 		if( $wgRequest->getText('action') == 'blockstack-manifest' ) self::returnManifest();
+		if( $wgRequest->getText('action') == 'blockstack-validate' ) self::returnValidation( $path );
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
-		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
 		$wgResourceModules['ext.blockstackcommon']['remoteExtPath'] = $path . '/BlockstackCommon';
 		$wgOut->addModules( 'ext.blockstackcommon' );
@@ -63,6 +83,19 @@ class BlockstackSso {
 			);
 			unset( $formDescriptor['blockstacksso']['type'] );
 		}
+	}
+
+	/**
+	 * Return a JS page that validates a Blockstack response and POSTs the data to the login page
+	 */
+	public static function returnValidation( $path ) {
+		global $wgOut;
+		$wgOut->disable();
+		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>";
+		$validtion = "<script src=\"$path/modules/validation.js\"></script>";
+		$head = "<head><title>Blockstack validation page</title>$blockstack$validation</head>";
+		echo "<?DOCTYPE html>\n<html>$head<body onload=\"validate()\"></body></html>";
+		self::restInPeace();
 	}
 
 	/**

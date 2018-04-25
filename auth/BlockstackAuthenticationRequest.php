@@ -14,7 +14,7 @@ use MediaWiki\Auth\ButtonAuthenticationRequest;
 class BlockstackAuthenticationRequest extends ButtonAuthenticationRequest {
 	public function __construct( \Message $label, \Message $help ) {
 		parent::__construct(
-			BlockstackPrimaryAuthenticationProvider::BLOCKSTACK_BUTTONREQUEST_NAME,
+			BlockstackPrimaryAuthenticationProvider::BLOCKSTACK_BUTTON,
 			$label,
 			$help,
 			true

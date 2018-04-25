@@ -29,7 +29,7 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 			],
 			'authResponse' => [
 				'type' => 'hidden',
-				'value' => 'foo'
+				'value' => \BlockstackSso::$authResponse
 			],
 		];
 	}

@@ -124,16 +124,21 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
 
+				// If we have the Blockstack authentication result, skip the form
 				if( $_GET['type'] == 'blockstack' ) {
-					wfDebugLog('Foo', 'login after');
+					wfDebugLog('Foo', 'We have our result, skipping form');
 					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
-					return [ new BlockstackEmptyAuthenticationRequest() ];
-				} else 
+					return [];
+				}
+				
+				// Otherwise, add our button to the login form
+				else {
+					return [ new BlockstackAuthenticationRequest(
+						wfMessage( 'blockstacksso' ),
+						wfMessage( 'blockstacksso-loginbutton-help' )
+					) ];
+				}
 
-				return [ new BlockstackAuthenticationRequest(
-					wfMessage( 'blockstacksso' ),
-					wfMessage( 'blockstacksso-loginbutton-help' )
-				) ];
 				break;
 			case AuthManager::ACTION_LINK:
 				wfDebugLog('Foo', 'ACTION_LINK');

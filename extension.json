@@ -27,6 +27,7 @@
 		"BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider": "auth/BlockstackPrimaryAuthenticationProvider.php",
 		"BlockstackSso\\Auth\\BlockstackAuthenticationRequest": "auth/BlockstackAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackRemoveAuthenticationRequest": "auth/BlockstackRemoveAuthenticationRequest.php",
+		"BlockstackSso\\Auth\\BlockstackEmptyAuthenticationRequest": "auth/BlockstackEmptyAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackServerAuthenticationRequest": "auth/BlockstackServerAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackUserInfoAuthenticationRequest": "auth/BlockstackUserInfoAuthenticationRequest.php",
 		"BlockstackSso\\BlockstackUser": "BlockstackUser.php",

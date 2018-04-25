@@ -10,9 +10,9 @@
  */
  $(document).ready(function() {
  	$('#mw-input-blockstacksso').click(function() {
- 		BlockstackCommon.login( retUrl, manUrl ).then((url) => {
+ 		BlockstackCommon.login( retUrl, manUrl ).then(function(url) {
  			window.location.replace(url);
- 		}).catch((err) => {
+ 		}).catch(function(err) {
  			console.error("Error: " + err);
  		});
  	});

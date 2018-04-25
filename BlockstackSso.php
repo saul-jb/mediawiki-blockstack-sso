@@ -94,7 +94,7 @@ class BlockstackSso {
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>";
 		$validation = "<script src=\"$path/modules/validation.js\"></script>";
 		$head = "<head><title>Blockstack validation page</title>$blockstack$validation</head>";
-		echo "<!DOCTYPE html>\n<html>$head<body onload=\"validate()\"></body></html>";
+		echo "<!DOCTYPE html>\n<html>$head<body onload=\"window.validate()\"></body></html>";
 		self::restInPeace();
 	}
 

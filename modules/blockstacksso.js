@@ -19,7 +19,7 @@ $(document).ready(function() {
 		setTimeout(function() {
 			var retUrl = mw.config.get('wgServer')
 				+ mw.config.get('wgScript')
-				+ '&action=blockstack-validation'
+				+ '&action=blockstack-validate'
 				+ '&token=' + encodeURIComponent( document.userlogin.wpLoginToken.value );
 			var manUrl = mw.config.get( 'blockstackManifestUrl' );
 

@@ -1,4 +1,4 @@
-function validate() {
+window.validate = function() {
 	BlockstackCommon.isSignedIn().then(function(userData) {
 		console.log(userDate);
 		/*

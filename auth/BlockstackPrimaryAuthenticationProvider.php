@@ -45,7 +45,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			wfDebugLog('Foo', 'begin primary auth');
 
 			// Check if this Blockstack ID already exists, and if so login now
-			if( 0&&ID_EXISTS ) 
+			if( 0&&ID_EXISTS ) {
 				// get the wiki user from the Blockstack ID
 				return AuthenticationResponse::newPass( 'Nad' );
 			}

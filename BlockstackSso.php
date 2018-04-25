@@ -53,7 +53,7 @@ class BlockstackSso {
 
 		// Not using UnknownAction hook for these since we need to bypass permissions
 		if( $wgRequest->getText('action') == 'blockstack-manifest' ) self::returnManifest();
-		if( $wgRequest->getText('action') == 'blockstack-validate' ) self::returnValidation( "$wgExtensionAssetsPath/$path" );
+		if( $wgRequest->getText('action') == 'blockstack-validate' ) self::returnValidation( $wgExtensionAssetsPath . $path );
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
@@ -92,7 +92,7 @@ class BlockstackSso {
 		global $wgOut;
 		$wgOut->disable();
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>";
-		$validation = "<script src=\"$path/modules/validation.js\"></script>";
+		$validation = "<script src=\"$path/modules/validate.js\"></script>";
 		$head = "<head><title>Blockstack validation page</title>$blockstack$validation</head>";
 		echo "<!DOCTYPE html>\n<html>$head<body onload=\"window.validate()\"></body></html>";
 		self::restInPeace();

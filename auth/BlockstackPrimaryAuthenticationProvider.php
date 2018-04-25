@@ -39,16 +39,14 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 * Blockstack authentication has made this request including the authentication info we must validate
 	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
+		/*
 		if( $_GET['type'] = 'blockstack' ) {
 			wfDebugLog('Foo', 'begin primary auth');
 			//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
-			
-			/**
-			 * authenticate the request, check if the account is already linked and if so log in
-			 */
-			
 			return AuthenticationResponse::newPass( 'Nad' );
 		} else return AuthenticationResponse::newAbstain();
+		*/
+		return AuthenticationResponse::newAbstain();
 	}
 
 	public function continuePrimaryAuthentication( array $reqs ) {
@@ -127,6 +125,13 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			// When first visiting the login page
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
+
+				if( $_GET['type'] = 'blockstack' ) {
+					wfDebugLog('Foo', 'login after');
+					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
+					return AuthenticationResponse::newPass( 'Nad' );
+				} else 
+
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso' ),
 					wfMessage( 'blockstacksso-loginbutton-help' )

@@ -13,7 +13,7 @@ class BlockstackSso {
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
 
-		if( array_key_exists( 'type', $_GET ) && $_GET['type'] == 'blockstack' ) {
+		if( 0&&array_key_exists( 'type', $_GET ) && $_GET['type'] == 'blockstack' ) {
 			self::$authResponse = $_GET['authResponse'];
 			$_SERVER['REQUEST_METHOD'] = 'POST';
 			$_SERVER['REQUEST_URI'] = preg_replace( '|\?.+$|', '', $_SERVER['REQUEST_URI'] );

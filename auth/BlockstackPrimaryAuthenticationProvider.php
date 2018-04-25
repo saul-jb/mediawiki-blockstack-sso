@@ -126,7 +126,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
 
-				if( $_GET['type'] = 'blockstack' ) {
+				if( $_GET['type'] == 'blockstack' ) {
 					wfDebugLog('Foo', 'login after');
 					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
 					return [];//AuthenticationResponse::newPass( 'Nad' );

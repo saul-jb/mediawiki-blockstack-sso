@@ -4,7 +4,11 @@ window.validate = function() {
 		var username = userData.username;
 		var realname = userData.profile.name;
 
-		console.log( BlockstackCommon.phpSignIn(userData) );
+		BlockstackCommon.phpSignIn(userData).then(function(data) {
+			console.log(data);
+		}).catch(function(err) {
+			console.error(err.data);
+		});
 
 	}).catch(function(err) {
 		console.error(err.data);

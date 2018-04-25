@@ -39,7 +39,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 * Blockstack authentication has made this request including the authentication info we must validate
 	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
-		if( $_GET['type'] = 'blockstack' ) {
+		if( 0&&$_GET['type'] = 'blockstack' ) {
 			wfDebugLog('Foo', 'begin primary auth');
 			//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
 			return AuthenticationResponse::newPass( 'Nad' );

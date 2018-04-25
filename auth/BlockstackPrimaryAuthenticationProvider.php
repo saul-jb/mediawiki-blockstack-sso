@@ -129,7 +129,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				if( $_GET['type'] == 'blockstack' ) {
 					wfDebugLog('Foo', 'login after');
 					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
-					return [];//AuthenticationResponse::newPass( 'Nad' );
+					return [AuthenticationResponse::newPass( 'Nad' )];
 				} else 
 
 				return [ new BlockstackAuthenticationRequest(

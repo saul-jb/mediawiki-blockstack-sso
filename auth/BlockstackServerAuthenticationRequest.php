@@ -12,51 +12,25 @@ use MediaWiki\Auth\AuthenticationRequest;
  * redirect from Blockstack into the authentication workflow.
  */
 class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
-	/**
-	 * Verification code provided by the server. Needs to be sent back in the last leg of the
-	 * authorization process.
-	 * @var string
-	 */
-	public $accessToken;
-
-	/**
-	 * An error code returned in case of Authentication failure
-	 * @var string
-	 */
-	public $errorCode;
 
 	public function getFieldInfo() {
 		return [
-			'error' => [
+			'username' => [
 				'type' => 'string',
-				'label' => wfMessage( 'blockstacklogin-param-error-label' ),
-				'help' => wfMessage( 'blockstacklogin-param-error-help' ),
-				'optional' => true,
+				'label' => wfMessage( 'username' ),
+				'help' => wfMessage( 'blockstacklogin-username-help' ),
+				'optional' => false,
 			],
-			'code' => [
-				'type' => 'string',
-				'label' => wfMessage( 'blockstacklogin-param-code-label' ),
-				'help' => wfMessage( 'blockstacklogin-param-code-help' ),
-				'optional' => true,
+			'password' => [
+				'type' => 'password',
+				'label' => wfMessage( 'password' ),
+				'help' => wfMessage( 'blockstacklogin-password-help' ),
+				'optional' => false,
+			],
+			'authResponse' => [
+				'type' => 'hidden',
+				'value' => 'foo'
 			],
 		];
-	}
-
-	/**
-	 * Load data from query parameters in an OAuth return URL
-	 * @param array $data Submitted data as an associative array
-	 * @return AuthenticationRequest|null
-	 */
-	public function loadFromSubmission( array $data ) {
-		if ( isset( $data['code'] ) ) {
-			$this->accessToken = $data['code'];
-			return true;
-		}
-
-		if ( isset( $data['error'] ) ) {
-			$this->errorCode = $data['error'];
-			return true;
-		}
-		return false;
 	}
 }

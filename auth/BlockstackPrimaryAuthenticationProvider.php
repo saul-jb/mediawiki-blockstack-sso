@@ -53,7 +53,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			// No, we need to get the account we want to link to,
 			else {				
 				wfDebugLog('Foo', get_class($reqs));
-				return AuthenticationResponse::newUI( $reqs, wfMessage( 'blockstacksso-form-merge' ) );
+				return AuthenticationResponse::newUI( [new BlockstackServerAuthenticationRequest($reqs)], wfMessage( 'blockstacksso-form-merge' ) );
 			}
 
 		} else return AuthenticationResponse::newAbstain();

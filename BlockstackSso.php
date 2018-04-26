@@ -111,7 +111,7 @@ class BlockstackSso {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 0] );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $row->bs_key . $key, ['bs_id' => 0] );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $row->bs_key . $key], ['bs_id' => 0] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
 	}
 

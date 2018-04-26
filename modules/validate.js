@@ -35,7 +35,7 @@ window.validate = function() {
 
 			var authAction = document.createElement('INPUT');
 			authAction.setAttribute('type', 'hidden');
-			authAction.setAttribute('name', 'wpName');
+			authAction.setAttribute('name', 'authAction');
 			authAction.setAttribute('value','login');
 			form.appendChild(authAction);
 
@@ -47,16 +47,16 @@ window.validate = function() {
 
 			var wpLoginToken = document.createElement('INPUT');
 			wpLoginToken.setAttribute('type', 'hidden');
-			wpLoginToken.setAttribute('name', 'wpName');
+			wpLoginToken.setAttribute('name', 'wpLoginToken');
 			wpLoginToken.setAttribute('value', queryString('token'));
 			form.appendChild(wpLoginToken);
 
 			if(key) {
-				var keyField = document.createElement('INPUT');
-				keyField.setAttribute('type', 'hidden');
-				keyField.setAttribute('name', 'wpSecretKey');
-				keyField.setAttribute('value', key);
-				form.appendChild(keyField);
+				var secretKey = document.createElement('INPUT');
+				secretKey.setAttribute('type', 'hidden');
+				secretKey.setAttribute('name', 'secretKey');
+				secretKey.setAttribute('value', key);
+				form.appendChild(secretKey);
 			}
 
 			// POST this data to the login form for server-side validation

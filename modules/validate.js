@@ -15,6 +15,11 @@ window.validate = function() {
 		BlockstackCommon.phpSignIn(data).then(function(data) {
 			console.log('Blockstack authentication successful');
 
+			// Extract the login token fom the query-string
+			var re = new RegExp('[?&]token=(.+?)[&]');
+			var res = re.exec(window.location.href);
+			var token = res ? res[1] : '';
+
 			// If salt is supplied, we need to create a shared secret from it and send it back with the post
 			var key = false;
 			if(window.salt) {
@@ -48,7 +53,7 @@ window.validate = function() {
 			var wpLoginToken = document.createElement('INPUT');
 			wpLoginToken.setAttribute('type', 'hidden');
 			wpLoginToken.setAttribute('name', 'wpLoginToken');
-			wpLoginToken.setAttribute('value', queryString('token'));
+			wpLoginToken.setAttribute('value', token);
 			form.appendChild(wpLoginToken);
 
 			if(key) {
@@ -71,12 +76,3 @@ window.validate = function() {
 		console.error(err.data);
 	});
 };
-
-function queryString(name) {
-    name = name.replace(/[\[\]]/g, "\\$&");
-    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-        results = regex.exec(window.location.href);
-    if (!results) return null;
-    if (!results[2]) return '';
-    return decodeURIComponent(results[2].replace(/\+/g, " "));
-}

@@ -130,13 +130,13 @@ class BlockstackSso {
 		$data .= 'window.salt="' . ( $key ? '' : $salt ) ."\";\n";
 
 		// Add script headers to load our validation script and the blockstack JS
-		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>";
-		$validation = "<script src=\"$path/modules/validate.js\"></script>";
+		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>\n";
+		$validation = "<script src=\"$path/modules/validate.js\"></script>\n";
 
 		// Output as a minimal HTML page and exit
 		$wgOut->disable();
-		$head = "<head><title>Blockstack validation page</title>{$blockstack}{$validation}{$data}</head>";
-		echo "<!DOCTYPE html>\n<html>$head<body onload=\"window.validate()\"></body></html>";
+		$head = "<head>\n<title>Blockstack validation page</title>\n{$blockstack}{$validation}<script>\n{$data}</script>\n</head>\n";
+		echo "<!DOCTYPE html>\n<html>\n$head<body onload=\"window.validate()\"></body></html>\n";
 		self::restInPeace();
 	}
 

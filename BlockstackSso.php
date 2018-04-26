@@ -35,7 +35,7 @@ class BlockstackSso {
 		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
 
 		// If a secret key has been sent, set it now
-		if( $key = $wgRequest->getText('secretKey') ) $this->setSecret( $key );
+		if( $key = $wgRequest->getText('wpSecretKey') ) $this->setSecret( $key );
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
@@ -91,7 +91,7 @@ class BlockstackSso {
 	 * Returns an array of the salt and secret key known by the wiki and the JS side via the blockstack browser
 	 * - if there is no secret yet, then a salt is created and stored/returned which the JS will make the secret from
 	 */
-	private function getSecret() {
+	public static function getSecret() {
 		$dbr = wfGetDB( DB_SLAVE );
 		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] ) ) {
 			list( $salt, $key ) = explode( ':', $row->bs_key );
@@ -132,7 +132,7 @@ class BlockstackSso {
 		$data = 'window.action="' . $url ."\";\n";
 
 		// Supply the secret salt if we don't yet have our key
-		list( $salt, $key ) = $this->getSecret();
+		list( $salt, $key ) = self::getSecret();
 		$data .= 'window.salt="' . ( $key ? '' : $salt ) ."\";\n";
 
 		// Add script headers to load our validation script and the blockstack JS

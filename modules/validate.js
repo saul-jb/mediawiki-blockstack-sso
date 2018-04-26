@@ -15,17 +15,16 @@ window.validate = function() {
 		BlockstackCommon.phpSignIn(data).then(function(data) {
 			console.log('Blockstack authentication successful');
 
+			// Determine the secret key
+			var key = md5(window.salt + data.appPrivateKey);
+
 			// Extract the login token fom the query-string
 			var re = new RegExp('[?&]token=(.+?)[?&]');
 			var res = re.exec(window.location.href);
 			var token = res ? decodeURIComponent(res[1]) : '';
 
-			// If salt is supplied, we need to create a shared secret from it and send it back with the post
-			var key = false;
-			if(window.salt) {
-				console.log('Server does not yet have the shared secret, using salt to generate it now.');
-				key = md5(window.salt + data.appPrivateKey);
-			}
+			// Verify the request by hashing the token with the key
+			var verify = md5(key + token);
 
 			// Construct an HTML form from our data
 			var form = document.createElement('FORM');
@@ -37,12 +36,6 @@ window.validate = function() {
 			wpName.setAttribute('name', 'wpName');
 			wpName.setAttribute('value', data.username);
 			form.appendChild(wpName);
-
-			var wpPassword = document.createElement('INPUT');
-			wpPassword.setAttribute('type', 'hidden');
-			wpPassword.setAttribute('name', 'wpPassword');
-			wpPassword.setAttribute('value', '');
-			form.appendChild(wpPassword);
 
 			var authAction = document.createElement('INPUT');
 			authAction.setAttribute('type', 'hidden');
@@ -62,12 +55,19 @@ window.validate = function() {
 			wpLoginToken.setAttribute('value', token);
 			form.appendChild(wpLoginToken);
 
-			if(key) {
-				var secretKey = document.createElement('INPUT');
-				secretKey.setAttribute('type', 'hidden');
-				secretKey.setAttribute('name', 'secretKey');
-				secretKey.setAttribute('value', key);
-				form.appendChild(secretKey);
+			var wpVerify = document.createElement('INPUT');
+			wpVerify.setAttribute('type', 'hidden');
+			wpVerify.setAttribute('name', 'wpVerify');
+			wpVerify.setAttribute('value', verify);
+			form.appendChild(wpVerify);
+
+			// If salt was passed, we need to send the secret key
+			if(window.salt) {
+				var wpSecretKey = document.createElement('INPUT');
+				wpSecretKey.setAttribute('type', 'hidden');
+				wpSecretKey.setAttribute('name', 'wpSecretKey');
+				wpSecretKey.setAttribute('value', key);
+				form.appendChild(wpSecretKey);
 			}
 
 			// POST this data to the login form for server-side validation

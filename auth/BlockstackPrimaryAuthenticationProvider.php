@@ -42,6 +42,15 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		global $wgRequest;
 		if( $wgRequest->getText( self::BLOCKSTACK_BUTTON ) ) {
 
+			// Verfify the request by ensuring it was made by a holder of the shared secret
+			$verify = $wgRequest->getText( 'wpVerify' );
+			$token = $wgRequest->getText( 'wpToken' );
+			$hash = md5( \BlockstackSso::getSecret() . $token );
+			if( $verify != $hash ) {
+				wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
+				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
+			}
+
 			// Check if this Blockstack ID is already linked to an account, and if so login now
 			if( 0&&ID_EXISTS ) {
 				// get the wiki user from the Blockstack ID

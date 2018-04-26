@@ -117,7 +117,7 @@ class BlockstackSso {
 		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] );
 		list( $salt, $key ) = explode( ':', $row->bs_key );
 		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $key], ['bs_user' => 0] );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_user' => 0], ['bs_key' => $salt . ':' . $key] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
 	}
 

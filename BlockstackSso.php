@@ -98,15 +98,15 @@ class BlockstackSso {
 		$dbw = wfGetDB( DB_MASTER );
 		if( !$dbw->tableExists( BlockstackSso::TABLENAME ) ) {
 			$table = $dbw->tableName( BlockstackSso::TABLENAME );
-			$dbw->query( "CREATE TABLE $table (
+			/*$dbw->query( "CREATE TABLE $table (
 				bs_id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				bs_key  INT UNSIGNED NOT NULL,
 				bs_user INT UNSIGNED NOT NULL,
 				PRIMARY KEY (bs_id)
-			)" );
+			)" );*/
+			if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
+			else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		}
-		if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
-		else die( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		return true;
 	}
 

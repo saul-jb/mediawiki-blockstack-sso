@@ -123,7 +123,7 @@ class BlockstackSso {
 
 		// Supply the URL the final data should be posted to
 		$url = Title::newFromName( 'UserLogin', NS_SPECIAL )->getLocalUrl();
-		$data = 'window.action="' . $url ."\";\n"
+		$data = 'window.action="' . $url ."\";\n";
 
 		// Supply the secret salt if we don't yet have our key
 		list( $salt, $key ) = $this->getSecret();

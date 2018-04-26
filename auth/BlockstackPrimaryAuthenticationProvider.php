@@ -92,12 +92,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				wfDebugLog('Foo', 'ACTION_LOGIN');
 				
 				// Otherwise, add our button to the login form
-				else {
-					return [ new BlockstackAuthenticationRequest(
-						wfMessage( 'blockstacksso' ),
-						wfMessage( 'blockstacksso-loginbutton-help' )
-					) ];
-				}
+				return [ new BlockstackAuthenticationRequest(
+					wfMessage( 'blockstacksso' ),
+					wfMessage( 'blockstacksso-loginbutton-help' )
+				) ];
 
 				break;
 			case AuthManager::ACTION_LINK:

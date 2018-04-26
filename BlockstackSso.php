@@ -94,7 +94,7 @@ class BlockstackSso {
 	 * Add our database table if it doesn't exist
 	 */
 	private function addDatabaseTable() {
-		global $wgSitenotice;
+		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
 		if( !$dbw->tableExists( BlockstackSso::TABLENAME ) ) {
 			$table = $dbw->tableName( BlockstackSso::TABLENAME );
@@ -105,7 +105,7 @@ class BlockstackSso {
 				PRIMARY KEY (bs_id)
 			)" );
 		}
-		if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSitenotice = wfMessage( 'blockstacksso-tablecreated' )->text();
+		if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
 		else die( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		return true;
 	}

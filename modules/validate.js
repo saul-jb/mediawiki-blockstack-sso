@@ -31,10 +31,22 @@ window.validate = function() {
 			form.setAttribute('action', window.action);
 			form.setAttribute('method', 'POST'); 
 
+			var bsName = document.createElement('INPUT');
+			bsName.setAttribute('type', 'hidden');
+			bsName.setAttribute('name', 'bsName');
+			bsName.setAttribute('value', data.username);
+			form.appendChild(bsName);
+
+			var bsKey = document.createElement('INPUT');
+			bsKey.setAttribute('type', 'hidden');
+			bsKey.setAttribute('name', 'bsKey');
+			bsKey.setAttribute('value', data.did);
+			form.appendChild(bsKey);
+
 			var wpName = document.createElement('INPUT');
 			wpName.setAttribute('type', 'hidden');
 			wpName.setAttribute('name', 'wpName');
-			wpName.setAttribute('value', data.username);
+			wpName.setAttribute('value', data.username.charAt(0).toUpperCase() + data.username.substr(1).replace(/\.id$/));
 			form.appendChild(wpName);
 
 			var authAction = document.createElement('INPUT');
@@ -82,3 +94,4 @@ window.validate = function() {
 		console.error(err.data);
 	});
 };
+

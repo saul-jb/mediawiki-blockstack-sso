@@ -10,9 +10,6 @@
 	"requires": {
 		"MediaWiki": ">= 1.28.0"
 	},
-	"ConfigRegistry": {
-		"blockstacksso": "GlobalVarConfig::newInstance"
-	},
 	"MessagesDirs": {
 		"BlockstackSso": [
 			"i18n"
@@ -22,15 +19,12 @@
 		"AuthChangeFormFields": "BlockstackSso::onAuthChangeFormFields"
 	},
 	"AutoloadClasses": {
-		"BlockstackCommon": "BlockstackCommon/BlockstackCommon.php",
 		"BlockstackSso": "BlockstackSso.php",
 		"BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider": "auth/BlockstackPrimaryAuthenticationProvider.php",
 		"BlockstackSso\\Auth\\BlockstackAuthenticationRequest": "auth/BlockstackAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackRemoveAuthenticationRequest": "auth/BlockstackRemoveAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackServerAuthenticationRequest": "auth/BlockstackServerAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackUserInfoAuthenticationRequest": "auth/BlockstackUserInfoAuthenticationRequest.php",
-		"BlockstackSso\\BlockstackUser": "BlockstackUser.php",
-		"BlockstackSso\\BlockstackResourceLoaderModule": "BlockstackResourceLoaderModule.php"
 	},
 	"AuthManagerAutoConfig": {
 		"primaryauth": {

@@ -13,9 +13,6 @@ use MediaWiki\Auth\AuthManager;
 use MediaWiki\MediaWikiServices;
 use StatusValue;
 use User;
-use BlockstackSso\BlockstackUser;
-use BlockstackBDClient\Scopes;
-use BlockstackBDClient\Clients\OAuth2Client;
 
 /**
  * Implements a primary authentication provider to authenticate an user using a Blockstack forum
@@ -42,26 +39,31 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		global $wgRequest;
 		if( $wgRequest->getText( self::BLOCKSTACK_BUTTON ) ) {
 
-			// Verfify the request by ensuring it was made by a holder of the shared secret
+			// Get all the post values
+			$name = $wgRequest->getText( 'wpName' );
+			$bsKey = $wgRequest->getText( 'bsKey' );
 			$verify = $wgRequest->getText( 'wpVerify' );
 			$token = $wgRequest->getText( 'wpLoginToken' );
-			$hash = md5( \BlockstackSso::getSecret()[1] . $token );
+
+			// Verfify the request by ensuring it was made by a holder of the shared secret
+			$secret = \BlockstackSso::getSecret()[1];
+			$hash = md5( $secret . $token );
 			if( $verify != $hash ) {
-wfDebugLog( __METHOD__, 'Verification failed: ' . \BlockstackSso::getSecret()[1] );
-wfDebugLog( __METHOD__, 'Verification failed: ' . $token );
-wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
+				wfDebugLog( __METHOD__, "Verification failed: $secret:$token:$hash" );
 				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
 			}
 
 			// Check if this Blockstack ID is already linked to an account, and if so login now
-			if( 0&&ID_EXISTS ) {
-				// get the wiki user from the Blockstack ID
-				return AuthenticationResponse::newPass( 'Nad' );
+			if( $user = \BlockstackSso::getLinkedUser( $bsKey ) ) {
+				return AuthenticationResponse::newPass( $user->getName() );
 			}
 
-			// No it's not linked yet, we need to ask the user for the linking account
+			// No it's not linked yet, we need to ask the user for the linking account details
 			else {				
-				return AuthenticationResponse::newUI( [new BlockstackServerAuthenticationRequest($reqs)], wfMessage( 'blockstacksso-form-merge' ) );
+				return AuthenticationResponse::newUI(
+					[ new BlockstackServerAuthenticationRequest($reqs) ],
+					wfMessage( 'blockstacksso-form-merge' )
+				);
 			}
 
 		}
@@ -76,66 +78,10 @@ wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
 				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
 			);
 		}
-		$config = MediaWikiServices::getInstance()->getConfigFactory()->makeConfig( 'blockstacksso' );
-		$xfUser = $this->getAuthenticatedXFUserFromRequest( $request );
-		if ( $xfUser instanceof AuthenticationResponse ) {
-			return $xfUser;
-		}
-
-		try {
-			$userInfo = $xfUser->get( 'me' );
-			if ( $userInfo === false ) {
-				$errors = implode( $xfUser->getErrors(), ', ' );
-				return AuthenticationResponse::newFail(
-					wfMessage( 'blockstacksso-external-error', $errors )
-				);
-			}
-			$connectedUser = BlockstackUser::getUserFromXFUserId( $userInfo['user']['user_id'] );
-			$mwUser = User::newFromName( $userInfo['user']['username'] );
-			if ( $connectedUser ) {
-				return AuthenticationResponse::newPass( $connectedUser->getName() );
-			} elseif ( $config->get( 'BlockstackSsoAutoCreate' ) && $mwUser->isAnon() ) {
-				$this->autoCreateLinkRequest =
-					new BlockstackUserInfoAuthenticationRequest( $userInfo['user'] );
-
-				return AuthenticationResponse::newPass( $mwUser->getName() );
-			} elseif ( $config->get( 'BlockstackSsoAutoCreate' ) && !$mwUser->isAnon() ) {
-				// in this case, BlockstackSso is configured to autocreate accounts, however, the
-				// account with the username of the blockstack board is already registered, but not
-				// connected with this blockstack account. AuthManager would already give a warning
-				// like "The account is not associated with any wiki account", however, as
-				// BlockstackSso is configured to autocreate accounts this is not enough
-				// information for most of the users reading that (and expecting their account to
-				// be autocreated). That's why we throw another error here with some more
-				// information and a help link.
-				return AuthenticationResponse::newFail(
-					wfMessage(
-						'blockstacksso-local-exists',
-						$mwUser->getName()
-					)
-				);
-			} else {
-				$resp = AuthenticationResponse::newPass( null );
-				$resp->linkRequest = new BlockstackUserInfoAuthenticationRequest( $userInfo['user'] );
-				$resp->createRequest = $resp->linkRequest;
-				return $resp;
-			}
-		} catch ( \Exception $e ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-generic-error', $e->getMessage() )
-			);
-		}
+		print "continuing...";
 	}
 
 	public function autoCreatedAccount( $user, $source ) {
-		if ( $this->autoCreateLinkRequest !== null && isset( $this->autoCreateLinkRequest->userInfo['user_id'] ) ) {
-			BlockstackUser::connectWithBlockstackUser( $user,
-				$this->autoCreateLinkRequest->userInfo['user_id'] );
-			if ( isset( $this->autoCreateLinkRequest->userInfo['user_email'] ) ) {
-				$user->setEmailWithConfirmation( $this->autoCreateLinkRequest->userInfo['user_email'] );
-				$user->saveSettings();
-			}
-		}
 	}
 
 	public function getAuthenticationRequests( $action, array $options ) {
@@ -144,13 +90,6 @@ wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
 			// When first visiting the login page
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
-
-				// If we have the Blockstack authentication result, skip the form
-				if( \BlockstackSso::$blockstackRequest ) {
-					wfDebugLog('Foo', 'We have our result, skipping form');
-					//return AuthenticationResponse::newRedirect( [ new BlockstackServerAuthenticationRequest() ], $req->returnToUrl );
-					return [];
-				}
 				
 				// Otherwise, add our button to the login form
 				else {
@@ -172,11 +111,10 @@ wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
 			case AuthManager::ACTION_REMOVE:
 				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
-				if ( !$user || !BlockstackUser::hasConnectedXFUserAccount( $user ) ) {
+				if ( !$user || !\BlockstackSso::isLinked( $user->getId() ) ) {
 					return [];
 				}
-				$xfUserId = BlockstackUser::getXFUserIdFromUser( $user );
-				return [ new BlockstackRemoveAuthenticationRequest( $xfUserId ) ];
+				return [ new BlockstackRemoveAuthenticationRequest( $user->getId() ) ];
 				break;
 			case AuthManager::ACTION_CREATE:
 				wfDebugLog('Foo', 'ACTION_CREATE');
@@ -298,31 +236,6 @@ wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
 				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
 			);
 		}
-		$xfUser = $this->getAuthenticatedXFUserFromRequest( $request );
-		if ( $xfUser instanceof AuthenticationResponse ) {
-			return $xfUser;
-		}
-		try {
-			$userInfo = $xfUser->get( 'me' );
-			$xfUserId = $userInfo['user']['user_id'];
-			$potentialUser = BlockstackUser::getUserFromXFUserId( $xfUserId );
-			if ( $potentialUser && !$potentialUser->equals( $user ) ) {
-				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-link-other' ) );
-			} elseif ( $potentialUser ) {
-				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-link-same' ) );
-			} else {
-				$result = BlockstackUser::connectWithBlockstackUser( $user, $xfUserId );
-				if ( $result ) {
-					return AuthenticationResponse::newPass();
-				} else {
-					// TODO: Better error message
-					return AuthenticationResponse::newFail( new \RawMessage( 'Database error' ) );
-				}
-			}
-		} catch ( \Exception $e ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-generic-error', $e->getMessage() )
-			);
-		}
+		print 'continuing link...';
 	}
 }

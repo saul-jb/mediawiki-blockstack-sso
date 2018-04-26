@@ -4,11 +4,7 @@ class BlockstackSso {
 	const TABLENAME = 'blockstacksso';
 
 	public static $instance = null;
-
-	private static $authResponse;
 	
-	public static $blockstackRequest = false;
-
 	/**
 	 * Called when the extension is first loaded
 	 */
@@ -37,12 +33,12 @@ class BlockstackSso {
 		// If a secret key has been sent, set it now
 		if( $key = $wgRequest->getText('wpSecretKey') ) $this->setSecret( $key );
 
-		// This gets the remote path even if it's a symlink (MW1.25+)
+		// Include the common blockstack JS
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
 		$wgResourceModules['ext.blockstackcommon']['remoteExtPath'] = $path . '/BlockstackCommon';
 		$wgOut->addModules( 'ext.blockstackcommon' );
 
-		// Fancytree script and styles
+		// Inlcude this extension's JS and CSS
 		$wgResourceModules['ext.blockstacksso']['localBasePath'] = __DIR__ . '/modules';
 		$wgResourceModules['ext.blockstacksso']['remoteExtPath'] = "$path/modules";
 		$wgOut->addModules( 'ext.blockstacksso' );
@@ -73,15 +69,15 @@ class BlockstackSso {
 	private function addDatabaseTable() {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
-		if( !$dbw->tableExists( BlockstackSso::TABLENAME ) ) {
-			$table = $dbw->tableName( BlockstackSso::TABLENAME );
+		if( !$dbw->tableExists( self::TABLENAME ) ) {
+			$table = $dbw->tableName( self::TABLENAME );
 			$dbw->query( "CREATE TABLE $table (
 				bs_id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				bs_key  VARCHAR(128) NOT NULL,
 				bs_user INT UNSIGNED NOT NULL,
 				PRIMARY KEY (bs_id)
 			)" );
-			if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
+			if( $dbw->tableExists( self::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
 			else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		}
 		return true;
@@ -93,7 +89,7 @@ class BlockstackSso {
 	 */
 	public static function getSecret() {
 		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] ) ) {
+		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_key', ['bs_user' => 0] ) ) {
 			list( $salt, $key ) = explode( ':', $row->bs_key );
 		}
 
@@ -101,7 +97,7 @@ class BlockstackSso {
 		else {
 			$dbw = wfGetDB( DB_MASTER );
 			$salt = MWCryptRand::generateHex( 32 );
-			$dbw->insert( BlockstackSso::TABLENAME, ['bs_user' => 0, 'bs_key' => $salt . ':'] );
+			$dbw->insert( self::TABLENAME, ['bs_user' => 0, 'bs_key' => $salt . ':'] );
 		}
 
 		return [$salt, $key];
@@ -114,11 +110,30 @@ class BlockstackSso {
 	private function setSecret( $newKey ) {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] );
+		$row = $dbw->selectRow( self::TABLENAME, 'bs_key', ['bs_user' => 0] );
 		list( $salt, $key ) = explode( ':', $row->bs_key );
 		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
 		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $newKey], ['bs_user' => 0] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
+	}
+
+	/**
+	 * Return the wiki user object associated with the passed Blockstack key if it exists, false if not
+	 */
+	public static function getLinkedUser( $key ) {
+		$dbr = wfGetDB( DB_SLAVE );
+		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_user', ['bs_key' => $key] ) ) {
+			return User::newFromId( $row->bs_user );
+		}
+		return false;
+	}
+
+	/**
+	 * Return whether the passed wiki user ID is linked, false if not
+	 */
+	public static function isLinked( $id ) {
+		$dbr = wfGetDB( DB_SLAVE );
+		return (bool)$dbr->selectRow( self::TABLENAME, '1', ['bs_user' => $id] );
 	}
 
 	/**

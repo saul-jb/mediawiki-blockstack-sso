@@ -16,7 +16,7 @@ window.validate = function() {
 			console.log('Blockstack authentication successful');
 
 			// Extract the login token fom the query-string
-			var re = new RegExp('[?&]token=(.+?)[&]');
+			var re = new RegExp('[?&]token=(.+?)[?&]');
 			var res = re.exec(window.location.href);
 			var token = res ? res[1] : '';
 

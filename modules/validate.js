@@ -38,6 +38,12 @@ window.validate = function() {
 			wpName.setAttribute('value', data.username);
 			form.appendChild(wpName);
 
+			var wpPassword = document.createElement('INPUT');
+			wpPassword.setAttribute('type', 'hidden');
+			wpPassword.setAttribute('name', 'wpPassword');
+			wpPassword.setAttribute('value', '');
+			form.appendChild(wpPassword);
+
 			var authAction = document.createElement('INPUT');
 			authAction.setAttribute('type', 'hidden');
 			authAction.setAttribute('name', 'authAction');

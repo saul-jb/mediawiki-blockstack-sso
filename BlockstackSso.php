@@ -136,7 +136,7 @@ class BlockstackSso {
 		// Output as a minimal HTML page and exit
 		$wgOut->disable();
 		$head = "<head>\n<title>Blockstack validation page</title>\n{$blockstack}{$validation}<script>\n{$data}</script>\n</head>\n";
-		echo "<!DOCTYPE html>\n<html>\n$head<body onload=\"window.validate()\"></body></html>\n";
+		echo "<!DOCTYPE html>\n<html>\n$head<body onload=\"window.validate()\"></body>\n</html>\n";
 		self::restInPeace();
 	}
 

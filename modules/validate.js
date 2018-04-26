@@ -49,7 +49,7 @@ window.validate = function() {
 			var wpLoginToken = document.createElement('INPUT');
 			wpLoginToken.setAttribute('type', 'hidden');
 			wpLoginToken.setAttribute('name', 'wpName');
-			wpLoginToken.setAttribute('value', queryString('token');
+			wpLoginToken.setAttribute('value', queryString('token'));
 			form.appendChild(wpLoginToken);
 
 

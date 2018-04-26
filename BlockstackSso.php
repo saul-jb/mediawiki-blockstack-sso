@@ -34,6 +34,9 @@ class BlockstackSso {
 		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $this->returnManifest();
 		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
 
+		// If a secret key has been sent, set it now
+		if( $key = $wgRequest->getText('secretKey') ) $this->setSecret( $key );
+
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
 		$wgResourceModules['ext.blockstackcommon']['remoteExtPath'] = $path . '/BlockstackCommon';
@@ -106,12 +109,15 @@ class BlockstackSso {
 
 	/**
 	 * Set the shared secret
+	 * - error if trying to set and it's already set
 	 */
 	private function setSecret( $key ) {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 0] );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $row->bs_key . $key], ['bs_id' => 0] );
+		list( $salt, $key ) = explode( ':', $row->bs_key );
+		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $key], ['bs_id' => 0] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
 	}
 

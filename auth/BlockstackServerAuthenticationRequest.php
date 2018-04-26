@@ -26,11 +26,7 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 				'label' => wfMessage( 'userlogin-yourpassword' ),
 				'help' => wfMessage( 'blockstacklogin-password-help' ),
 				'optional' => false,
-			],
-			'authResponse' => [
-				'type' => 'hidden',
-				'value' => \BlockstackSso::$authResponse
-			],
+			]
 		];
 	}
 }

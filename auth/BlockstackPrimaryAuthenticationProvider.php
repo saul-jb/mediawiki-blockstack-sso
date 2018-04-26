@@ -40,10 +40,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if( $wgRequest->getText( self::BLOCKSTACK_BUTTON ) ) {
 
 			// Get all the post values
-			$name = $wgRequest->getText( 'wpName' );
-			$bsKey = $wgRequest->getText( 'bsKey' );
+			$name   = $wgRequest->getText( 'wpName' );
+			$bsKey  = $wgRequest->getText( 'bsKey' );
 			$verify = $wgRequest->getText( 'wpVerify' );
-			$token = $wgRequest->getText( 'wpLoginToken' );
+			$token  = $wgRequest->getText( 'wpLoginToken' );
 
 			// Verfify the request by ensuring it was made by a holder of the shared secret
 			$secret = \BlockstackSso::getSecret()[1];
@@ -74,11 +74,9 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		wfDebugLog('Foo', 'continuing primary auth');
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
-			);
+			return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-error-no-authentication-workflow' ) );
 		}
-		print "continuing...";
+		var_export( $request );
 	}
 
 	public function autoCreatedAccount( $user, $source ) {

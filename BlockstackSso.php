@@ -111,13 +111,13 @@ class BlockstackSso {
 	 * Set the shared secret
 	 * - error if trying to set and it's already set
 	 */
-	private function setSecret( $key ) {
+	private function setSecret( $newKey ) {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
 		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] );
 		list( $salt, $key ) = explode( ':', $row->bs_key );
 		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_user' => 0], ['bs_key' => $salt . ':' . $key] );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_user' => 0], ['bs_key' => $salt . ':' . $newKey] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
 	}
 

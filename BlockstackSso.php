@@ -93,15 +93,15 @@ class BlockstackSso {
 	 */
 	private function getSecret() {
 		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 1] ) ) {
+		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] ) ) {
 			list( $salt, $key ) = explode( ':', $row->bs_key );
 		}
 
-		// There is no row 1 yet, create one with a salt value in it
+		// There is no salt:key row yet, create one with salt-only
 		else {
 			$dbw = wfGetDB( DB_MASTER );
 			$salt = MWCryptRand::generateHex( 32 );
-			$dbw->insert( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':'] );
+			$dbw->insert( BlockstackSso::TABLENAME, ['bs_user' => 0, 'bs_key' => $salt . ':'] );
 		}
 
 		return [$salt, $key];
@@ -114,10 +114,10 @@ class BlockstackSso {
 	private function setSecret( $key ) {
 		global $wgSiteNotice;
 		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 1] );
+		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_user' => 0] );
 		list( $salt, $key ) = explode( ':', $row->bs_key );
 		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $key], ['bs_id' => 1] );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $key], ['bs_user' => 0] );
 		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
 	}
 

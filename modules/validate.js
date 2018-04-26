@@ -18,7 +18,7 @@ window.validate = function() {
 			// Extract the login token fom the query-string
 			var re = new RegExp('[?&]token=(.+?)[?&]');
 			var res = re.exec(window.location.href);
-			var token = res ? res[1] : '';
+			var token = res ? decodeURIComponent(res[1]) : '';
 
 			// If salt is supplied, we need to create a shared secret from it and send it back with the post
 			var key = false;

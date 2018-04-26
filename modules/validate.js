@@ -30,7 +30,7 @@ window.validate = function() {
 			var wpName = document.createElement('INPUT');
 			wpName.setAttribute('type', 'hidden');
 			wpName.setAttribute('name', 'wpName');
-			v.setAttribute('value', data.username);
+			wpName.setAttribute('value', data.username);
 			form.appendChild(wpName);
 
 			var authAction = document.createElement('INPUT');
@@ -38,23 +38,30 @@ window.validate = function() {
 			authAction.setAttribute('name', 'wpName');
 			authAction.setAttribute('value','login');
 			form.appendChild(authAction);
-			
+
 			var button = document.createElement('INPUT');
 			button.setAttribute('type', 'hidden');
 			button.setAttribute('name', 'blockstacksso');
 			button.setAttribute('value','login');
 			form.appendChild(button);
-			
-			$_POST['wpLoginToken'] = $_GET['token'];
+
 			var wpLoginToken = document.createElement('INPUT');
 			wpLoginToken.setAttribute('type', 'hidden');
 			wpLoginToken.setAttribute('name', 'wpName');
 			wpLoginToken.setAttribute('value', queryString('token'));
 			form.appendChild(wpLoginToken);
 
+			if(key) {
+				var keyField = document.createElement('INPUT');
+				keyField.setAttribute('type', 'hidden');
+				keyField.setAttribute('name', 'wpSecretKey');
+				keyField.setAttribute('value', key);
+				form.appendChild(keyField);
+			}
 
 			// POST this data to the login form for server-side validation
 			document.body.appendChild(form);
+			console.log('submitting form...');
 			form.submit();
 
 		}).catch(function(err) {

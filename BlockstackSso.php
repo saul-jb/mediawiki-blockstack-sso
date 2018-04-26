@@ -94,16 +94,19 @@ class BlockstackSso {
 	 * Add our database table if it doesn't exist
 	 */
 	private function addDatabaseTable() {
+		global $wgSitenotice;
 		$dbw = wfGetDB( DB_MASTER );
-		$table = $dbw->tableName( BlockstackSso::TABLENAME );
-		print $table;
-		/*$dbw = wfGet
-			CREATE TABLE $table (
-			  user_xfuserid DECIMAL(25,0) unsigned NOT NULL PRIMARY KEY,
-			  user_id int(10) unsigned NOT NULL,
-			  KEY(user_id)
-			);
-		*/
+		if( !$dbw->tableExists( BlockstackSso::TABLENAME ) ) {
+			$table = $dbw->tableName( BlockstackSso::TABLENAME );
+			$dbw->query( "CREATE TABLE $table (
+				bs_id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
+				bs_key  INT UNSIGNED NOT NULL,
+				bs_user INT UNSIGNED NOT NULL,
+				PRIMARY KEY (bs_id)
+			)" );
+		}
+		if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSitenotice = wfMessage( 'blockstacksso-tablecreated' )->text();
+		else die( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		return true;
 	}
 

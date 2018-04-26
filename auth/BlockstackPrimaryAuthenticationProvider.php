@@ -44,10 +44,12 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 			// Verfify the request by ensuring it was made by a holder of the shared secret
 			$verify = $wgRequest->getText( 'wpVerify' );
-			$token = $wgRequest->getText( 'wpToken' );
-			$hash = md5( \BlockstackSso::getSecret() . $token );
+			$token = $wgRequest->getText( 'wpLoginToken' );
+			$hash = md5( \BlockstackSso::getSecret()[1] . $token );
 			if( $verify != $hash ) {
-				wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
+wfDebugLog( __METHOD__, 'Verification failed: ' . \BlockstackSso::getSecret()[1] );
+wfDebugLog( __METHOD__, 'Verification failed: ' . $token );
+wfDebugLog( __METHOD__, 'Verification failed: ' . $hash );
 				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
 			}
 

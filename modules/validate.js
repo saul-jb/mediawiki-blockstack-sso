@@ -62,7 +62,7 @@ window.validate = function() {
 			form.appendChild(wpVerify);
 
 			// If salt was passed, we need to send the secret key
-			if(window.salt) {
+			if(!window.key) {
 				var wpSecretKey = document.createElement('INPUT');
 				wpSecretKey.setAttribute('type', 'hidden');
 				wpSecretKey.setAttribute('name', 'wpSecretKey');

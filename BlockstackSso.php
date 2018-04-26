@@ -133,7 +133,8 @@ class BlockstackSso {
 
 		// Supply the secret salt if we don't yet have our key
 		list( $salt, $key ) = self::getSecret();
-		$data .= 'window.salt="' . ( $key ? '' : $salt ) ."\";\n";
+		$data .= 'window.salt="' . $salt ."\";\n";
+		$data .= 'window.key="' . (bool)$key ."\";\n";
 
 		// Add script headers to load our validation script and the blockstack JS
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>\n";

@@ -41,7 +41,9 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function beginPrimaryAuthentication( array $reqs ) {
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackPrimaryAuthenticationProvider::class );
 		if( $request ) {
-wfDebugLog('ours...');
+wfDebugLog('Foo','ours...');
+wfDebugLog('Foo',BlockstackPrimaryAuthenticationProvider::class);
+wfDebugLog('Foo',get_class($reqs[1]));
 			// Check if this Blockstack ID is already linked to an account, and if so login now
 			if( 0&&ID_EXISTS ) {
 				// get the wiki user from the Blockstack ID

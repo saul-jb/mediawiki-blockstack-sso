@@ -1,6 +1,8 @@
 <?php
 class BlockstackSso {
 
+	const TABLENAME = 'blockstacksso';
+
 	public static $instance = null;
 
 	private static $authResponse;
@@ -48,6 +50,9 @@ class BlockstackSso {
 	public function setup() {
 		global $wgRequest, $wgGroupPermissions, $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
 
+		// Add our DB table if it doesn't exist
+		$this->addDatabaseTable();
+
 		// Get script path accounting for symlinks
 		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
 
@@ -83,6 +88,23 @@ class BlockstackSso {
 			);
 			unset( $formDescriptor['blockstacksso']['type'] );
 		}
+	}
+
+	/**
+	 * Add our database table if it doesn't exist
+	 */
+	private function addDatabaseTable() {
+		$dbw = wfGetDB( DB_MASTER );
+		$table = $dbw->tableName( BlockstackSso::TABLENAME );
+		print $table;
+		/*$dbw = wfGet
+			CREATE TABLE $table (
+			  user_xfuserid DECIMAL(25,0) unsigned NOT NULL PRIMARY KEY,
+			  user_id int(10) unsigned NOT NULL,
+			  KEY(user_id)
+			);
+		*/
+		return true;
 	}
 
 	/**

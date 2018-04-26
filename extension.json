@@ -1,7 +1,7 @@
 {
 	"name": "BlockstackSSO",
 	"version": "0.1.0",
-	"author": ["Aran Dunkley", "Florian Schmidt"],
+	"author": "Aran Dunkley",
 	"url": "https://www.mediawiki.org/wiki/Extension:BlockstackSSO",
 	"descriptionmsg": "blockstacksso-desc",
 	"license-name": "MIT",

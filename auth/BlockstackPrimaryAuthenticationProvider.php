@@ -39,11 +39,8 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 * Blockstack authentication has made this request including the authentication info we must validate
 	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
-wfDebugLog('Foo', get_class($reqs[0]));
-wfDebugLog('Foo', get_class($reqs[1]));
-		// If we already have our Blockstack authentication...
-		if( \BlockstackSso::$blockstackRequest ) {
-			wfDebugLog('Foo', 'begin primary auth');
+		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackPrimaryAuthenticationProvider::class );
+		if( $request ) {
 
 			// Check if this Blockstack ID is already linked to an account, and if so login now
 			if( 0&&ID_EXISTS ) {
@@ -56,7 +53,7 @@ wfDebugLog('Foo', get_class($reqs[1]));
 				return AuthenticationResponse::newUI( [new BlockstackServerAuthenticationRequest($reqs)], wfMessage( 'blockstacksso-form-merge' ) );
 			}
 
-		} else return AuthenticationResponse::newAbstain();
+		}
 		return AuthenticationResponse::newAbstain();
 	}
 

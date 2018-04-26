@@ -16,32 +16,6 @@ class BlockstackSso {
 		global $wgExtensionFunctions;
 		self::$instance = new self();
 		$wgExtensionFunctions[] = array( self::$instance, 'setup' );
-
-		/* If this is a Blockstack athentication response?
-		if( array_key_exists( 'type', $_GET ) && $_GET['type'] == 'blockstack' ) {
-			self::blockstackRequest = true;
-
-			// Does the response require authenticating?
-			if( array_key_exists( 'authResponse', $_GET ) ) {
-
-				// We need to return a minimal JS page that resolves the response
-				// - this is because Blockstack requires the response to be authenicated client-side
-				// - it also allows us to POST the data as if it were from the normal login form
-				self::$authResponse = $_GET['authResponse'];
-			}
-
-			// It's already authenticated, convert the data to look like a MediaWiki login form submission
-			else {
-				$_SERVER['REQUEST_METHOD'] = 'POST';
-				$_POST['wpName'] = $_GET['wpName'];
-				$_POST['wpLoginToken'] = $_GET['token'];
-				$_POST['authAction'] = 'login';
-				$_POST[\BlockstackSso\Auth\BlockstackPrimaryAuthenticationProvider::BLOCKSTACK_BUTTON] = 'login';
-				wfDebugLog( 'Foo', 'changing blockstack auth response into a login form submission' );
-			}
-		}
-		*/
-
 	}
 
 	/**
@@ -57,8 +31,8 @@ class BlockstackSso {
 		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
 
 		// Not using UnknownAction hook for these since we need to bypass permissions
-		if( $wgRequest->getText('action') == 'blockstack-manifest' ) self::returnManifest();
-		if( $wgRequest->getText('action') == 'blockstack-validate' ) self::returnValidation( $wgExtensionAssetsPath . $path );
+		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $this->returnManifest();
+		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
 
 		// This gets the remote path even if it's a symlink (MW1.25+)
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
@@ -70,7 +44,7 @@ class BlockstackSso {
 		$wgResourceModules['ext.blockstacksso']['remoteExtPath'] = "$path/modules";
 		$wgOut->addModules( 'ext.blockstacksso' );
 		$wgOut->addStyle( "$path/styles/blockstacksso.css" );
-		$wgOut->addJsConfigVars( 'blockstackManifestUrl', self::manifestUrl() );
+		$wgOut->addJsConfigVars( 'blockstackManifestUrl', $this->manifestUrl() );
 	}
 
 	/**
@@ -98,12 +72,12 @@ class BlockstackSso {
 		$dbw = wfGetDB( DB_MASTER );
 		if( !$dbw->tableExists( BlockstackSso::TABLENAME ) ) {
 			$table = $dbw->tableName( BlockstackSso::TABLENAME );
-			/*$dbw->query( "CREATE TABLE $table (
+			$dbw->query( "CREATE TABLE $table (
 				bs_id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				bs_key  INT UNSIGNED NOT NULL,
+				bs_key  VARCHAR(128) NOT NULL,
 				bs_user INT UNSIGNED NOT NULL,
 				PRIMARY KEY (bs_id)
-			)" );*/
+			)" );
 			if( $dbw->tableExists( BlockstackSso::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
 			else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		}
@@ -111,14 +85,57 @@ class BlockstackSso {
 	}
 
 	/**
+	 * Returns an array of the salt and secret key known by the wiki and the JS side via the blockstack browser
+	 * - if there is no secret yet, then a salt is created and stored/returned which the JS will make the secret from
+	 */
+	private function getSecret() {
+		$dbr = wfGetDB( DB_SLAVE );
+		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 0] ) ) {
+			list( $salt, $key ) = explode( ':', $row->bs_key );
+		}
+
+		// There is no row zero yet, create one with a salt value in it
+		else {
+			$dbw = wfGetDB( DB_MASTER );
+			$salt = MWCryptRand::generateHex( 32 );
+			$dbw->insert( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':'] );
+		}
+
+		return [$salt, $key];
+	}
+
+	/**
+	 * Set the shared secret
+	 */
+	private function setSecret( $key ) {
+		global $wgSiteNotice;
+		$dbw = wfGetDB( DB_MASTER );
+		$row = $dbw->selectRow( BlockstackSso::TABLENAME, 'bs_key', ['bs_id' => 0] );
+		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $row->bs_key . $key, ['bs_id' => 0] );
+		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
+	}
+
+	/**
 	 * Return a JS page that validates a Blockstack response and POSTs the data to the login page
 	 */
-	public static function returnValidation( $path ) {
+	public function returnValidation( $path ) {
 		global $wgOut;
-		$wgOut->disable();
+
+		// Supply the URL the final data should be posted to
+		$url = Title::newFromName( 'UserLogin', NS_SPECIAL )->getLocalUrl();
+		$data = 'window.action="' . $url ."\";\n"
+
+		// Supply the secret salt if we don't yet have our key
+		list( $salt, $key ) = $this->getSecret();
+		$data .= 'window.salt="' . ( $key ? '' : $salt ) ."\";\n";
+
+		// Add script headers to load our validation script and the blockstack JS
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>";
 		$validation = "<script src=\"$path/modules/validate.js\"></script>";
-		$head = "<head><title>Blockstack validation page</title>$blockstack$validation</head>";
+
+		// Output as a minimal HTML page and exit
+		$wgOut->disable();
+		$head = "<head><title>Blockstack validation page</title>{$blockstack}{$validation}{$data}</head>";
 		echo "<!DOCTYPE html>\n<html>$head<body onload=\"window.validate()\"></body></html>";
 		self::restInPeace();
 	}
@@ -126,7 +143,7 @@ class BlockstackSso {
 	/**
 	 * Return the JSON manifest with the correct headers and exit
 	 */
-	public static function returnManifest() {
+	private function returnManifest() {
 		global $wgOut, $wgSitename, $wgServer, $wgLogo;
 		$wgOut->disable();
 		header( 'Content-Type: application/json' );
@@ -149,7 +166,7 @@ class BlockstackSso {
 	/**
 	 * Return the URL to the manifest
 	 */
-	public static function manifestUrl() {
+	private function manifestUrl() {
 		global $wgServer, $wgScriptPath;
 		return $wgServer . $wgScriptPath . '?action=blockstack-manifest';
 	}
@@ -157,7 +174,7 @@ class BlockstackSso {
 	/**
 	 * Die nicely
 	 */
-	private static function restInPeace() {
+	public static function restInPeace() {
 		global $mediaWiki;
 		if( is_object( $mediaWiki ) ) $mediaWiki->restInPeace();
 		exit;

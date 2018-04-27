@@ -100,7 +100,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// If the wiki account already has an associated Blockstack ID
 		$bsUser = BlockstackUser::newFromUserId( $user->getId() );
-		if ( $bsUser ) !== false ) {
+		if ( $bsUser !== false ) {
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'blockstacksso-unlink-first', $bsUser->getName() )

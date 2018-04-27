@@ -27,9 +27,9 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 				'help' => wfMessage( 'blockstacklogin-password-help' ),
 				'optional' => false,
 			],
-			'bsKey' => [
+			'bsDid' => [
 				'type' => 'hidden',
-				'value' => BlockstackPrimaryAuthenticationProvider::$bsKey
+				'value' => BlockstackPrimaryAuthenticationProvider::$bsUser->getDid()
 			],
 		];
 	}

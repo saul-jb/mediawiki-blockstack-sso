@@ -26,7 +26,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	/** Name of the button of the BlockstackAuthenticationRequest */
 	const BLOCKSTACK_BUTTON = 'blockstacksso';
 
-	public static $bsKey;
+	public static $bsUser;
 
 	/**
 	 * @var null|BlockstackUserInfoAuthenticationRequest
@@ -47,21 +47,18 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 			// Is this Blockstack ID already linked to an account?
 			if( $bsUser->isLinked() ) {
-				$name = $wgRequest->getText( 'wpName' );
-
-				$verify = $wgRequest->getText( 'wpVerify' );
-				$token  = $wgRequest->getText( 'wpLoginToken' );
 
 				// Verfify the request by ensuring it was made by a holder of the shared secret
-				$secret = \BlockstackSso::getSecret()[1];
+				$verify = $wgRequest->getText( 'wpVerify' );
+				$token  = $wgRequest->getText( 'wpLoginToken' );
+				$secret = $bsUser->getSecret();
 				$hash = md5( $secret . $token );
 				if( $verify != $hash ) {
 					wfDebugLog( __METHOD__, "Verification failed: $secret:$token:$hash" );
 					return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
 				}
 
-
-				return AuthenticationResponse::newPass( $user->getName() );
+				return AuthenticationResponse::newPass( $bsUser->getWikiUser()->getName() );
 			}
 
 			// No it's not linked yet,
@@ -73,6 +70,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				$bsUser->save();
 
 				// Return UI to ask the user for the linking account details
+				self::$bsUser = $bsUser;
 				return AuthenticationResponse::newUI(
 					[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 					wfMessage( 'blockstacksso-form-merge' )
@@ -89,12 +87,21 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if ( !$request ) {
 			return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-error-no-authentication-workflow' ) );
 		}
-		$user = $request->username;
-		$pass = $request->password;
-		$bsKey = $request->bsKey;
 
-		// TODO: link the account, remove the bsKey entry if not successful
+		// Get the wiki user we're linking to
+		$user = User:newFromName( $request->username );
 
+		// Check the credentials
+		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) {
+			return AuthenticationResponse::newFail( wfMessage( 'wrongpassword' ) );			
+		}
+
+		// Link the account
+		$bsUser = \BlockstackUser::newFromDid( $request->bsDid );
+		$bsUser->setWikiUser( $user->getId() );
+		$bsUser->save();
+
+		return AuthenticationResponse::newPass( $user()->getName() );
 	}
 
 	public function autoCreatedAccount( $user, $source ) {

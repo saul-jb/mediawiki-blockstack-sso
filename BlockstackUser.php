@@ -38,8 +38,8 @@ class BlockstackUser {
 	 * Loads the data of the person represented by the Blockstack User ID.
 	 */
 	private function init() {
-		if( !$dbw->tableExists( self::TABLENAME ) ) $this->addDatabaseTable(); // Add our DB table if it doesn't exist
 		$dbr = wfGetDB( DB_SLAVE );
+		if( !$dbr->tableExists( self::TABLENAME ) ) $this->addDatabaseTable(); // Add our DB table if it doesn't exist
 		if( $row = $dbr->selectRow( self::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
 			$this->name = $row->bs_name;
 			$this->secret = $row->bs_secret;

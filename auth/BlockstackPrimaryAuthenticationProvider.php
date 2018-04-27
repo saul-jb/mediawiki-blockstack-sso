@@ -113,7 +113,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function getAuthenticationRequests( $action, array $options ) {
 		switch ( $action ) {
 
-			// When first visiting the login page, add out button
 			case AuthManager::ACTION_LOGIN:
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso' ),

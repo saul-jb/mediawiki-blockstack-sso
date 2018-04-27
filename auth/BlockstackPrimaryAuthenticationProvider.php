@@ -105,7 +105,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
 
-		return AuthenticationResponse::newPass( $user()->getName() );
+		return AuthenticationResponse::newPass( $user->getName() );
 	}
 
 	public function autoCreatedAccount( $user, $source ) {

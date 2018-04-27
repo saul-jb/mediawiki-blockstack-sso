@@ -94,7 +94,15 @@ class BlockstackUser {
 		return User::newFromId( $this->userId );
 	}
 
-	public function setWikiUser( $id ) {
+	public function getWikiUserId() {
+		return $this->userId;
+	}
+
+	public function setWikiUser( User $user ) {
+		$this->userId = $user->getId();
+	}
+
+	public function setWikiUserId( int $id ) {
 		$this->userId = $id;
 	}
 

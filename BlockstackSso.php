@@ -1,4 +1,6 @@
 <?php
+use \BlockstackSso\BlockstackUser;
+
 class BlockstackSso {
 
 	const TABLENAME = 'blockstacksso';
@@ -98,8 +100,8 @@ class BlockstackSso {
 		global $wgOut;
 		$wgOut->disable();
 		header( 'Content-Type: application/json' );
-		$bsUser = \BlockstackSso\BlockstackUser::newFromDid( $did );
-		echo '{"id":' . $bsUser->getWikiUser() . '}';
+		$bsUser = BlockstackUser::newFromDid( $did );
+		echo '{"id":' . $bsUser->getWikiUserId() . '}';
 		self::restInPeace();
 	}
 

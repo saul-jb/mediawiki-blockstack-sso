@@ -4,7 +4,7 @@
 	"author": "Aran Dunkley",
 	"url": "https://www.mediawiki.org/wiki/Extension:BlockstackSSO",
 	"descriptionmsg": "blockstacksso-desc",
-	"license-name": "MIT",
+	"license-name": "GPL",
 	"type": "auth",
 	"callback": "BlockstackSso::onRegistration",
 	"requires": {

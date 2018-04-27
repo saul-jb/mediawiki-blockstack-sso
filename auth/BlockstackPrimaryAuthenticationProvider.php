@@ -71,6 +71,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 				$resp = AuthenticationResponse::newPass();
 				$resp->linkRequest = new BlockstackServerAuthenticationRequest( $did );
+				return $resp;
 
 				// Return UI to ask the user for the linking account details
 				return AuthenticationResponse::newUI(

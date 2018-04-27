@@ -14,6 +14,7 @@ use MediaWiki\Auth\AuthenticationRequest;
 class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 
 	public function getFieldInfo() {
+		global $wgRequest;
 		return [
 			'username' => [
 				'type' => 'string',
@@ -29,7 +30,7 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 			],
 			'bsDid' => [
 				'type' => 'hidden',
-				'value' => BlockstackPrimaryAuthenticationProvider::$bsUser->getDid()
+				'value' => $wgRequest->getText( 'bsDid' );
 			],
 		];
 	}

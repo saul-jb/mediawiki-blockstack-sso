@@ -93,7 +93,11 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// Check the credentials
 		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) ) {
-			return AuthenticationResponse::newFail( wfMessage( 'wrongpassword' ) );			
+			//return AuthenticationResponse::newFail( wfMessage( 'wrongpassword' ) );			
+			return AuthenticationResponse::newUI(
+				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
+				wfMessage( 'wrongpassword' )
+			);
 		}
 
 		// Link the account
@@ -110,22 +114,12 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function getAuthenticationRequests( $action, array $options ) {
 		switch ( $action ) {
 
-			// When first visiting the login page
+			// When first visiting the login page, add out button
 			case AuthManager::ACTION_LOGIN:
-				wfDebugLog('Foo', 'ACTION_LOGIN');
-				
-				// Add our button to the login form
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso' ),
 					wfMessage( 'blockstacksso-loginbutton-help' )
 				) ];
-
-				break;
-			case AuthManager::ACTION_CHANGE:
-				wfDebugLog('Foo', 'ACTION_LOGIN');
-				if( array_key_exists( 'bsDid', $options ) ) {
-					self::$bsUser = BlockstackUser::newFromDid( $options['bsDid'] );
-				}
 				break;
 			case AuthManager::ACTION_LINK:
 				wfDebugLog('Foo', 'ACTION_LINK');

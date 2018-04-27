@@ -3,8 +3,6 @@ use \BlockstackSso\BlockstackUser;
 
 class BlockstackSso {
 
-	const TABLENAME = 'blockstacksso';
-
 	public static $instance = null;
 	
 	/**
@@ -21,9 +19,6 @@ class BlockstackSso {
 	 */
 	public function setup() {
 		global $wgRequest, $wgGroupPermissions, $wgOut, $wgExtensionAssetsPath, $wgAutoloadClasses, $IP, $wgResourceModules;
-
-		// Add our DB table if it doesn't exist
-		$this->addDatabaseTable();
 
 		// Get script path accounting for symlinks
 		$path = str_replace( "$IP/extensions", '', dirname( $wgAutoloadClasses[__CLASS__] ) );
@@ -61,36 +56,6 @@ class BlockstackSso {
 			);
 			unset( $formDescriptor['blockstacksso']['type'] );
 		}
-	}
-
-	/**
-	 * Add our database table if it doesn't exist
-	 */
-	private function addDatabaseTable() {
-		global $wgSiteNotice;
-		$dbw = wfGetDB( DB_MASTER );
-		if( !$dbw->tableExists( self::TABLENAME ) ) {
-			$table = $dbw->tableName( self::TABLENAME );
-			$dbw->query( "CREATE TABLE $table (
-				bs_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				bs_did    VARCHAR(40)  NOT NULL,
-				bs_name   VARCHAR(128) NOT NULL,
-				bs_secret VARCHAR(128)  NOT NULL,
-				bs_user   INT UNSIGNED NOT NULL,
-				PRIMARY KEY (bs_id)
-			)" );
-			if( $dbw->tableExists( self::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
-			else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
-		}
-		return true;
-	}
-
-	/**
-	 * Return whether the passed wiki user ID is linked, false if not
-	 */
-	public static function isLinked( $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
-		return (bool)$dbr->selectRow( self::TABLENAME, '1', ['bs_user' => $id] );
 	}
 
 	private function returnCheckUser( $did ) {

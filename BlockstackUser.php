@@ -5,6 +5,8 @@ use User;
 
 class BlockstackUser {
 
+	const TABLENAME = 'blockstacksso';
+
 	private $did;
 	private $name;
 	private $secret;
@@ -25,7 +27,7 @@ class BlockstackUser {
 
 	public static function newFromUserId( $id ) {
 		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
+		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
 			return new self( $row->bs_did );
 		}
 		return new self();
@@ -36,13 +38,33 @@ class BlockstackUser {
 	 * Loads the data of the person represented by the Blockstack User ID.
 	 */
 	private function init() {
+		if( !$dbw->tableExists( self::TABLENAME ) ) $this->addDatabaseTable(); // Add our DB table if it doesn't exist
 		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
+		if( $row = $dbr->selectRow( self::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
 			$this->name = $row->bs_name;
 			$this->secret = $row->bs_secret;
 			$this->userId = $row->bs_user;
 			$this->exists = true;
 		} else $this->exists = false;
+	}
+
+	/**
+	 * Add our database table if it doesn't exist
+	 */
+	private function addDatabaseTable() {
+		global $wgSiteNotice;
+		$dbw = wfGetDB( DB_MASTER );
+		$table = $dbw->tableName( self::TABLENAME );
+		$dbw->query( "CREATE TABLE $table (
+			bs_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+			bs_did    VARCHAR(40)  NOT NULL,
+			bs_name   VARCHAR(128) NOT NULL,
+			bs_secret VARCHAR(128)  NOT NULL,
+			bs_user   INT UNSIGNED NOT NULL,
+			PRIMARY KEY (bs_id)
+		)" );
+		if( $dbw->tableExists( self::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
+		else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 	}
 
 	/**
@@ -58,13 +80,13 @@ class BlockstackUser {
 		];
 
 		// Update the row if it exists already
-		if( $dbw->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
-			$dbw->update( BlockstackSso::TABLENAME, $row, ['bs_did' => $this->did] );
+		if( $dbw->selectRow( self::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
+			$dbw->update( self::TABLENAME, $row, ['bs_did' => $this->did] );
 		}
 
 		// User doesn't exist, create now
 		else {
-			$dbw->insert( BlockstackSso::TABLENAME, $row );
+			$dbw->insert( self::TABLENAME, $row );
 			$this->exists = true;
 		}
 	}
@@ -75,7 +97,7 @@ class BlockstackUser {
 	public function remove() {
 		if( $this->exists ) {
 			$dbw = wfGetDB( DB_MASTER );
-			$dbw->delete( BlockstackSso::TABLENAME, ['bs_did' => $this->did] );
+			$dbw->delete( self::TABLENAME, ['bs_did' => $this->did] );
 			$this->exists = false;
 		}
 	}

@@ -100,6 +100,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
+		self::$bsUser = $bsUser;
 
 		return AuthenticationResponse::newPass( $user()->getName() );
 	}

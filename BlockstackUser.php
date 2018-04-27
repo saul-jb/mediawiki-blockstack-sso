@@ -59,13 +59,13 @@ class BlockstackUser {
 		];
 
 		// Update the row if it exists already
-		if( $dbr->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
+		if( $dbw->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
 			$dbw->update( BlockstackSso::TABLENAME, $row, ['bs_did' => $this->did] );
 		}
 
 		// User doesn't exist, create now
 		else {
-			$dbw->insert( self::TABLENAME, $row );
+			$dbw->insert( BlockstackSso::TABLENAME, $row );
 			$this->exists = true;
 		}
 	}

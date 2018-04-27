@@ -187,15 +187,15 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		return StatusValue::newGood( 'ignored' );
 	}
 
+	/**
+	 * Do the actual unlinking process
+	 */
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
 		wfDebugLog('Foo', __METHOD__);
-
-		// Do the unlinking
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if( is_object( $user ) ) {
-				$bsUser = BlockstackUser::newFromUserId( $user->getId() );
-				if( $bsUser->exists() ) $bsUser->remove();
+				BlockstackUser::newFromUserId( $user->getId() )->remove();
 			}
 		}
 	}

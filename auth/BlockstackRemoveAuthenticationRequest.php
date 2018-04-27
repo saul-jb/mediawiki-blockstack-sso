@@ -39,8 +39,7 @@ class BlockstackRemoveAuthenticationRequest extends AuthenticationRequest {
 		$user = User::newFromId( $this->userId );
 		return [
 			'provider' => wfMessage( 'blockstacksso-auth-service-name' ),
-			'account' =>
-				new \RawMessage( '$1', [ $user->getName() ] ),
+			'account' => new \RawMessage( '$1', [ $user->getName() ] )
 		];
 	}
 }

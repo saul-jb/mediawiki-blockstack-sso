@@ -29,6 +29,7 @@ class BlockstackSso {
 		// Not using UnknownAction hook for these since we need to bypass permissions
 		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $this->returnManifest();
 		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
+		if( $wgRequest->getText('action') == 'blockstack-checkuser' ) $this->returnCheckuser( $wgRequest->getText('key') );
 
 		// If a secret key has been sent, set it now
 		if( $key = $wgRequest->getText('wpSecretKey') ) $this->setSecret( $key );
@@ -72,60 +73,17 @@ class BlockstackSso {
 		if( !$dbw->tableExists( self::TABLENAME ) ) {
 			$table = $dbw->tableName( self::TABLENAME );
 			$dbw->query( "CREATE TABLE $table (
-				bs_id   INT UNSIGNED NOT NULL AUTO_INCREMENT,
-				bs_key  VARCHAR(128) NOT NULL,
-				bs_user INT UNSIGNED NOT NULL,
+				bs_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+				bs_did    VARCHAR(40)  NOT NULL,
+				bs_name   VARCHAR(128) NOT NULL,
+				bs_secret VARCHAR(32)  NOT NULL,
+				bs_user   INT UNSIGNED NOT NULL,
 				PRIMARY KEY (bs_id)
 			)" );
 			if( $dbw->tableExists( self::TABLENAME ) ) $wgSiteNotice = wfMessage( 'blockstacksso-tablecreated' )->text();
 			else throw new MWException( wfMessage( 'blockstacksso-tablenotcreated' )->text() );
 		}
 		return true;
-	}
-
-	/**
-	 * Returns an array of the salt and secret key known by the wiki and the JS side via the blockstack browser
-	 * - if there is no secret yet, then a salt is created and stored/returned which the JS will make the secret from
-	 */
-	public static function getSecret() {
-		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_key', ['bs_user' => 0] ) ) {
-			list( $salt, $key ) = explode( ':', $row->bs_key );
-		}
-
-		// There is no salt:key row yet, create one with salt-only
-		else {
-			$dbw = wfGetDB( DB_MASTER );
-			$salt = MWCryptRand::generateHex( 32 );
-			$dbw->insert( self::TABLENAME, ['bs_user' => 0, 'bs_key' => $salt . ':'] );
-		}
-
-		return [$salt, $key];
-	}
-
-	/**
-	 * Set the shared secret
-	 * - error if trying to set and it's already set
-	 */
-	private function setSecret( $newKey ) {
-		global $wgSiteNotice;
-		$dbw = wfGetDB( DB_MASTER );
-		$row = $dbw->selectRow( self::TABLENAME, 'bs_key', ['bs_user' => 0] );
-		list( $salt, $key ) = explode( ':', $row->bs_key );
-		if( $key ) throw new MWException( wfMessage( 'blockstacksso-attemptkeyreplace' )->text() );
-		$dbw->update( BlockstackSso::TABLENAME, ['bs_key' => $salt . ':' . $newKey], ['bs_user' => 0] );
-		$wgSiteNotice = wfMessage( 'blockstacksso-secretcreated' );
-	}
-
-	/**
-	 * Return the wiki user object associated with the passed Blockstack key if it exists, false if not
-	 */
-	public static function getLinkedUser( $key ) {
-		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_user', ['bs_key' => $key] ) ) {
-			return User::newFromId( $row->bs_user );
-		}
-		return false;
 	}
 
 	/**
@@ -136,20 +94,25 @@ class BlockstackSso {
 		return (bool)$dbr->selectRow( self::TABLENAME, '1', ['bs_user' => $id] );
 	}
 
+	private function returnCheckUser( $key ) {
+		global $wgOut;
+		$wgOut->disable();
+		header( 'Content-Type: application/json' );
+		$dbr = wfGetDB( DB_SLAVE );
+		$row = $dbr->selectRow( self::TABLENAME, 'bs_user', ['bs_key' => $key] );
+		$id = $row ? $row->bs_user : 0;
+		echo '{"id":' . $id . '}';
+		self::restInPeace();
+	}
+
 	/**
 	 * Return a JS page that validates a Blockstack response and POSTs the data to the login page
 	 */
-	public function returnValidation( $path ) {
-		global $wgOut;
+	private function returnValidation( $path ) {
+		global $wgOut, $wgServer, $wgScript;
 
 		// Supply the URL the final data should be posted to
-		$url = Title::newFromText( 'UserLogin', NS_SPECIAL )->getLocalUrl();
-		$data = 'window.action="' . $url ."\";\n";
-
-		// Supply the secret salt if we don't yet have our key
-		list( $salt, $key ) = self::getSecret();
-		$data .= 'window.salt="' . $salt ."\";\n";
-		$data .= 'window.key="' . (bool)$key ."\";\n";
+		$data = 'window.script="' . $wgScript . $wgServer ."\";\n";
 
 		// Add script headers to load our validation script and the blockstack JS
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>\n";

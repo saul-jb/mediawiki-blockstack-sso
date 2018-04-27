@@ -20,6 +20,7 @@
 	},
 	"AutoloadClasses": {
 		"BlockstackSso": "BlockstackSso.php",
+		"BlockstackUser": "BlockstackUser.php",
 		"BlockstackSso\\Auth\\BlockstackPrimaryAuthenticationProvider": "auth/BlockstackPrimaryAuthenticationProvider.php",
 		"BlockstackSso\\Auth\\BlockstackAuthenticationRequest": "auth/BlockstackAuthenticationRequest.php",
 		"BlockstackSso\\Auth\\BlockstackRemoveAuthenticationRequest": "auth/BlockstackRemoveAuthenticationRequest.php",

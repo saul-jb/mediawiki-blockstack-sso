@@ -3,7 +3,6 @@
  * to the wiki with action=blockstack-validate which returns a minimal page containing this script and the blockstack dependencies.
  * The query string contains the Blockstack authentication data and the wiki login token so that resolved blockstack data can be posted
  * as if it were submitted in the original login form.
- * If there is also "salt" value set with this script then it means we need to create the initial shared secret as well
  */
 window.validate = function() {
 	console.log('Validating Blockstack response...');
@@ -15,78 +14,20 @@ window.validate = function() {
 		BlockstackCommon.phpSignIn(data).then(function(data) {
 			console.log('Blockstack authentication successful');
 
-			// Determine the secret key
-			var key = md5(window.salt + data.appPrivateKey);
-
-			// Extract the login token fom the query-string
-			var re = new RegExp('[?&]token=(.+?)[?&]');
-			var res = re.exec(window.location.href);
-			var token = res ? decodeURIComponent(res[1]) : '';
-
-			// Verify the request by hashing the token with the key
-			var verify = md5(key + token);
-
-			// Construct an HTML form from our data
-			var form = document.createElement('FORM');
-			form.setAttribute('action', window.action);
-			form.setAttribute('method', 'POST'); 
-
-			var bsName = document.createElement('INPUT');
-			bsName.setAttribute('type', 'hidden');
-			bsName.setAttribute('name', 'bsName');
-			bsName.setAttribute('value', data.username);
-			form.appendChild(bsName);
-
-			var bsKey = document.createElement('INPUT');
-			bsKey.setAttribute('type', 'hidden');
-			bsKey.setAttribute('name', 'bsKey');
-			bsKey.setAttribute('value', data.did);
-			form.appendChild(bsKey);
-
-			var wpName = document.createElement('INPUT');
-			wpName.setAttribute('type', 'hidden');
-			wpName.setAttribute('name', 'wpName');
-			wpName.setAttribute('value', data.username.charAt(0).toUpperCase() + data.username.substr(1).replace(/\.id$/,''));
-			form.appendChild(wpName);
-
-			var authAction = document.createElement('INPUT');
-			authAction.setAttribute('type', 'hidden');
-			authAction.setAttribute('name', 'authAction');
-			authAction.setAttribute('value','login');
-			form.appendChild(authAction);
-
-			var button = document.createElement('INPUT');
-			button.setAttribute('type', 'hidden');
-			button.setAttribute('name', 'blockstacksso');
-			button.setAttribute('value','login');
-			form.appendChild(button);
-
-			var wpLoginToken = document.createElement('INPUT');
-			wpLoginToken.setAttribute('type', 'hidden');
-			wpLoginToken.setAttribute('name', 'wpLoginToken');
-			wpLoginToken.setAttribute('value', token);
-			form.appendChild(wpLoginToken);
-
-			var wpVerify = document.createElement('INPUT');
-			wpVerify.setAttribute('type', 'hidden');
-			wpVerify.setAttribute('name', 'wpVerify');
-			wpVerify.setAttribute('value', verify);
-			form.appendChild(wpVerify);
-
-			// If salt was passed, we need to send the secret key
-			if(!window.key) {
-				var wpSecretKey = document.createElement('INPUT');
-				wpSecretKey.setAttribute('type', 'hidden');
-				wpSecretKey.setAttribute('name', 'wpSecretKey');
-				wpSecretKey.setAttribute('value', key);
-				form.appendChild(wpSecretKey);
-			}
-
-			// POST this data to the login form for server-side validation
-			document.body.appendChild(form);
-			console.log('submitting form...');
-			form.submit();
-
+			var wikiUser = 0;
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', window.script + '?action=blockstack-checkuser', true);
+			xhr.setRequestHeader("Content-type", "application/json");
+			xhr.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					data.wikiUser = xhr.responseText;
+					process(data);
+				}
+			};
+    		xhr.send();
+    		xhr.error = function(err) {
+				console.error(err.data);
+			};
 		}).catch(function(err) {
 			console.error(err.data);
 		});
@@ -95,3 +36,80 @@ window.validate = function() {
 	});
 };
 
+/**
+ * This function is called after the Blockstack response has been resolved into user information,
+ * we then perform query the server via XHR for the associated wiki user ID if there is one.
+ * If there isn't then the login request must also include the Blockstack secret key for this user/domain,
+ * We then do a login POST including a verification string (a hash of token+secret) or the secret itself
+ */
+function process(data) {
+
+	// Extract the login token fom the query-string
+	var re = new RegExp('[?&]token=(.+?)[?&]');
+	var res = re.exec(window.location.href);
+	var token = res ? decodeURIComponent(res[1]) : '';
+
+	// Construct an HTML form from our data
+	var form = document.createElement('FORM');
+	form.setAttribute('action', window.script + '?title=Special:UserLogin');
+	form.setAttribute('method', 'POST'); 
+
+	var bsName = document.createElement('INPUT');
+	bsName.setAttribute('type', 'hidden');
+	bsName.setAttribute('name', 'bsName');
+	bsName.setAttribute('value', data.username);
+	form.appendChild(bsName);
+
+	var bsDid = document.createElement('INPUT');
+	bsDid.setAttribute('type', 'hidden');
+	bsDid.setAttribute('name', 'bsDid');
+	bsDid.setAttribute('value', data.did);
+	form.appendChild(bsDid);
+
+	var wpName = document.createElement('INPUT');
+	wpName.setAttribute('type', 'hidden');
+	wpName.setAttribute('name', 'wpName');
+	wpName.setAttribute('value', data.username.charAt(0).toUpperCase() + data.username.substr(1).replace(/\.id$/,''));
+	form.appendChild(wpName);
+
+	var authAction = document.createElement('INPUT');
+	authAction.setAttribute('type', 'hidden');
+	authAction.setAttribute('name', 'authAction');
+	authAction.setAttribute('value','login');
+	form.appendChild(authAction);
+
+	var button = document.createElement('INPUT');
+	button.setAttribute('type', 'hidden');
+	button.setAttribute('name', 'blockstacksso');
+	button.setAttribute('value','login');
+	form.appendChild(button);
+
+	var wpLoginToken = document.createElement('INPUT');
+	wpLoginToken.setAttribute('type', 'hidden');
+	wpLoginToken.setAttribute('name', 'wpLoginToken');
+	wpLoginToken.setAttribute('value', token);
+	form.appendChild(wpLoginToken);
+
+	// If Linked, add a verification code
+	if(data.wikiUser) {
+		var wpVerify = document.createElement('INPUT');
+		wpVerify.setAttribute('type', 'hidden');
+		wpVerify.setAttribute('name', 'wpVerify');
+		wpVerify.setAttribute('value', md5(data.appPrivateKey + token));
+		form.appendChild(wpVerify);
+	}
+
+	// Otherwise send the secret
+	else {
+		var wpSecretKey = document.createElement('INPUT');
+		wpSecretKey.setAttribute('type', 'hidden');
+		wpSecretKey.setAttribute('name', 'wpSecretKey');
+		wpSecretKey.setAttribute('value', data.appPrivateKey);
+		form.appendChild(wpSecretKey);
+	}
+
+	// POST this data to the login form for server-side validation
+	document.body.appendChild(form);
+	console.log('submitting form...');
+	form.submit();
+}

@@ -26,6 +26,8 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	/** Name of the button of the BlockstackAuthenticationRequest */
 	const BLOCKSTACK_BUTTON = 'blockstacksso';
 
+	public static $bsKey;
+
 	/**
 	 * @var null|BlockstackUserInfoAuthenticationRequest
 	 */
@@ -40,28 +42,39 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if( $wgRequest->getText( self::BLOCKSTACK_BUTTON ) ) {
 
 			// Get all the post values
-			$name   = $wgRequest->getText( 'wpName' );
-			$bsKey  = $wgRequest->getText( 'bsKey' );
-			$verify = $wgRequest->getText( 'wpVerify' );
-			$token  = $wgRequest->getText( 'wpLoginToken' );
+			$did  = $wgRequest->getText( 'bsDid' );
+			$bsUser = \BlockstackUser::newFromDid( $did );
 
-			// Verfify the request by ensuring it was made by a holder of the shared secret
-			$secret = \BlockstackSso::getSecret()[1];
-			$hash = md5( $secret . $token );
-			if( $verify != $hash ) {
-				wfDebugLog( __METHOD__, "Verification failed: $secret:$token:$hash" );
-				return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
-			}
+			// Is this Blockstack ID already linked to an account?
+			if( $bsUser->isLinked() ) {
+				$name = $wgRequest->getText( 'wpName' );
 
-			// Check if this Blockstack ID is already linked to an account, and if so login now
-			if( $user = \BlockstackSso::getLinkedUser( $bsKey ) ) {
+				$verify = $wgRequest->getText( 'wpVerify' );
+				$token  = $wgRequest->getText( 'wpLoginToken' );
+
+				// Verfify the request by ensuring it was made by a holder of the shared secret
+				$secret = \BlockstackSso::getSecret()[1];
+				$hash = md5( $secret . $token );
+				if( $verify != $hash ) {
+					wfDebugLog( __METHOD__, "Verification failed: $secret:$token:$hash" );
+					return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-verification-failed' ) );
+				}
+
+
 				return AuthenticationResponse::newPass( $user->getName() );
 			}
 
-			// No it's not linked yet, we need to ask the user for the linking account details
+			// No it's not linked yet,
 			else {				
+
+				// Set the shared secret for this Blockstack ID
+				$bsUser->setSecret( $wgRequest->getText( 'wpSecret' ) );
+				$bsUser->setName( $wgRequest->getText( 'wpName' ) );
+				$bsUser->save();
+
+				// Return UI to ask the user for the linking account details
 				return AuthenticationResponse::newUI(
-					[ new BlockstackServerAuthenticationRequest($reqs) ],
+					[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 					wfMessage( 'blockstacksso-form-merge' )
 				);
 			}
@@ -76,7 +89,12 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if ( !$request ) {
 			return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-error-no-authentication-workflow' ) );
 		}
-		var_export( $request );
+		$user = $request->username;
+		$pass = $request->password;
+		$bsKey = $request->bsKey;
+
+		// TODO: link the account, remove the bsKey entry if not successful
+
 	}
 
 	public function autoCreatedAccount( $user, $source ) {

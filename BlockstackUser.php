@@ -1,4 +1,8 @@
 <?php
+/**
+ * The instances of this class represent rows in the blockstacksso database table,
+ * each is a lnk between a Blockstack ID and a wiki user
+ */
 namespace BlockstackSso;
 use BlockstackSso;
 use User;
@@ -7,11 +11,11 @@ class BlockstackUser {
 
 	const TABLENAME = 'blockstacksso';
 
-	private $did;
-	private $name;
-	private $secret;
-	private $userId = 0;
-	private $exists = false;
+	private $did;            // The Blockstack distributed ID
+	private $name;           // The Blockstack username
+	private $secret;         // The shared secret used to communicate with the Blockstack client-side service
+	private $userId = 0;     // The ID of the associated wiki user
+	private $exists = false; // Whether this instance has a corresponding row in the database or not
 
 	private function __construct( $did = '' ) {
 		$this->did = $did;
@@ -19,12 +23,15 @@ class BlockstackUser {
 	}
 
 	/**
-	 * Create a new BlockstackUser from a distributed ID
+	 * Create a new BlockstackUser instance from a distributed Blockstack ID
 	 */
 	public static function newFromDid( $did ) {
 		return new self( $did );
 	}
 
+	/**
+	 * Create a new BlockstackUser instance from a wiki user ID
+	 */
 	public static function newFromUserId( $id ) {
 		$dbr = wfGetDB( DB_SLAVE );
 		if( $row = $dbr->selectRow( self::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
@@ -102,6 +109,25 @@ class BlockstackUser {
 		}
 	}
 
+	/**
+	 * Returns whether or not the instance has an associated wiki account yet
+	 */
+	public function isLinked() {
+		return (bool)$this->userId;
+	}
+
+	/**
+	 * Returns whether or not the instance exists in the database
+	 * - note that an instance can exist but still have no associated wiki user yet
+	 */
+	public function exists() {
+		return $this->exists;
+	}
+
+
+
+	// The following are all getters and setters for the object state
+
 	public function getDid() {
 		return $this->did;
 	}
@@ -137,13 +163,4 @@ class BlockstackUser {
 	public function setWikiUserId( int $id ) {
 		$this->userId = $id;
 	}
-
-	public function isLinked() {
-		return (bool)$this->userId;
-	}
-
-	public function exists() {
-		return $this->exists;
-	}
-
 }

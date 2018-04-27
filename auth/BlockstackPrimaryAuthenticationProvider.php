@@ -27,8 +27,9 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	const BLOCKSTACK_BUTTON = 'blockstacksso';
 
 	/**
-	 * We only begin the authentication if we have type=blockstack in the query string which means the client-side
-	 * Blockstack authentication has made this request including the authentication info we must validate
+	 * Start our authentication if our form info has been submitted
+	 * - our form will look like the normal login form but is actually posted
+	 *   from the client side validate.js script
 	 */
 	public function beginPrimaryAuthentication( array $reqs ) {
 		global $wgRequest;
@@ -107,7 +108,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$resp = AuthenticationResponse::newPass( $user->getName() );
 		$resp->linkRequest = new BlockstackServerAuthenticationRequest();
 		return $resp;
-		//return AuthenticationResponse::newPass( $user->getName() );
 	}
 
 	public function getAuthenticationRequests( $action, array $options ) {
@@ -181,6 +181,9 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		return self::TYPE_LINK;
 	}
 
+	/**
+	 * Account creation not done yet
+	 */
 	public function beginPrimaryAccountCreation( $user, $creator, array $reqs ) {
 	}
 }

@@ -100,7 +100,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// If the wiki account already has an associated Blockstack ID
 		$bsUser = BlockstackUser::newFromUserId( $user->getId() );
-		if ( $bsUser !== false ) {
+		if ( $bsUser->isLinked() ) {
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'blockstacksso-unlink-first', $bsUser->getName() )
@@ -163,18 +163,18 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function testUserExists( $username, $flags = User::READ_NORMAL ) {
-		wfDebugLog('Foo - test user exists', $username);
 		return false;
 	}
 
 	public function testUserCanAuthenticate( $username ) {
-		wfDebugLog('Foo - test user can auth', $username);
 		return false;
 	}
 
-	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
 
-		// Can we unlink the account?
+	/**
+	 * Can we unlink the account?
+	 */
+	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if( is_object( $user ) && BlockstackUser::newFromUserId( $user->getId() )->isLinked() ) {
@@ -183,7 +183,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				return StatusValue::newFatal( wfMessage( 'blockstacksso-change-account-not-linked' ) );
 			}
 		}
-
 		return StatusValue::newGood( 'ignored' );
 	}
 

@@ -181,4 +181,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	public function accountCreationType() {
 		return self::TYPE_LINK;
 	}
+
+	public function beginPrimaryAccountCreation() {
+	}
 }

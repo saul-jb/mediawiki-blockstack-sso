@@ -141,7 +141,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_REMOVE:
 				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
-				if ( !$user || !BlockstackUser::newFromUser( $user )->isLinked() ) {
+				if ( !$user || !BlockstackUser::newFromUserId( $user->getId() )->isLinked() ) {
 					return [];
 				}
 				return [ new BlockstackRemoveAuthenticationRequest( $user->getId() ) ];

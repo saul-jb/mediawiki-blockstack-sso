@@ -1,5 +1,7 @@
 <?php
 namespace BlockstackSso;
+use BlockstackSso;
+use User;
 
 class BlockstackUser {
 
@@ -11,7 +13,7 @@ class BlockstackUser {
 
 	private function __construct( $did ) {
 		$this->did = $did;
-		$user->init();
+		$this->init();
 	}
 
 	/**
@@ -23,7 +25,7 @@ class BlockstackUser {
 
 	public static function newFromUserId( $id ) {
 		$user = new self( $did );
-		if( $row = $dbr->selectRow( \BlockstackSso::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
+		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
 			$user = new self( $row->bs_did );
 		}
 		return false;
@@ -35,7 +37,7 @@ class BlockstackUser {
 	 */
 	private function init() {
 		$dbr = wfGetDB( DB_SLAVE );
-		if( $row = $dbr->selectRow( \BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
+		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
 			$this->name = $row->bs_name;
 			$this->secret = $row->bs_secret;
 			$this->userId = $row->bs_user;
@@ -57,7 +59,7 @@ class BlockstackUser {
 		];
 
 		// Update the row if it exists already
-		if( $dbr->selectRow( \BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
+		if( $dbr->selectRow( BlockstackSso::TABLENAME, '*', ['bs_did' => $this->did] ) ) {
 			$dbw->update( BlockstackSso::TABLENAME, $row, ['bs_did' => $this->did] );
 		}
 

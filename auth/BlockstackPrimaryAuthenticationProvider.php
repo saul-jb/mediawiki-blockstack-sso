@@ -4,12 +4,12 @@
  */
 
 namespace BlockstackSso\Auth;
-
+use BlockstackSso;
+use BlockstackSso\BlockstackUser;
 use MediaWiki\Auth\AbstractPrimaryAuthenticationProvider;
 use MediaWiki\Auth\AuthenticationRequest;
 use MediaWiki\Auth\AuthenticationResponse;
 use MediaWiki\Auth\AuthManager;
-
 use MediaWiki\MediaWikiServices;
 use StatusValue;
 use User;
@@ -43,7 +43,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 			// Get all the post values
 			$did  = $wgRequest->getText( 'bsDid' );
-			$bsUser = \BlockstackUser::newFromDid( $did );
+			$bsUser = BlockstackUser::newFromDid( $did );
 
 			// Is this Blockstack ID already linked to an account?
 			if( $bsUser->isLinked() ) {
@@ -97,7 +97,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		}
 
 		// Link the account
-		$bsUser = \BlockstackUser::newFromDid( $request->bsDid );
+		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
 		$bsUser->setWikiUser( $user->getId() );
 		$bsUser->save();
 
@@ -132,7 +132,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_REMOVE:
 				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
-				if ( !$user || !\BlockstackSso::isLinked( $user->getId() ) ) {
+				if ( !$user || !BlockstackSso::isLinked( $user->getId() ) ) {
 					return [];
 				}
 				return [ new BlockstackRemoveAuthenticationRequest( $user->getId() ) ];

@@ -98,7 +98,7 @@ class BlockstackSso {
 		global $wgOut;
 		$wgOut->disable();
 		header( 'Content-Type: application/json' );
-		$bsUser = BlockstackUser::newFromDid( $did );
+		$bsUser = \BlockstackSso\BlockstackUser::newFromDid( $did );
 		echo '{"id":' . $bsUser->getWikiUser() . '}';
 		self::restInPeace();
 	}

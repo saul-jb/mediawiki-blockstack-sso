@@ -11,7 +11,7 @@ class BlockstackUser {
 	private $userId = 0;
 	private $exists = false;
 
-	private function __construct( $did ) {
+	private function __construct( $did = '' ) {
 		$this->did = $did;
 		$this->init();
 	}
@@ -28,7 +28,7 @@ class BlockstackUser {
 		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
 			return new self( $row->bs_did );
 		}
-		return false;
+		return new self();
 	}
 
 
@@ -42,8 +42,7 @@ class BlockstackUser {
 			$this->secret = $row->bs_secret;
 			$this->userId = $row->bs_user;
 			$this->exists = true;
-		}
-		$this->exists = false;
+		} else $this->exists = false;
 	}
 
 	/**

@@ -191,7 +191,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	 * Do the actual unlinking process
 	 */
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
-		wfDebugLog('Foo', __METHOD__);
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
 			$user = User::newFromName( $req->username );
 			if( is_object( $user ) ) {

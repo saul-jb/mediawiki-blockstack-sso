@@ -69,8 +69,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				$bsUser->setName( $wgRequest->getText( 'wpName' ) );
 				$bsUser->save();
 
+				$resp = AuthenticationResponse::newPass();
+				$resp->linkRequest = new BlockstackServerAuthenticationRequest( $did );
+
 				// Return UI to ask the user for the linking account details
-				self::$bsUser = $bsUser;
 				return AuthenticationResponse::newUI(
 					[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 					wfMessage( 'blockstacksso-form-merge' )

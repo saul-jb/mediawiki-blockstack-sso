@@ -13,6 +13,12 @@ use MediaWiki\Auth\AuthenticationRequest;
  */
 class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 
+	private $did = 0;
+
+	public function __construct( $did ) {
+		$this->did = $did;
+	}
+
 	public function getFieldInfo() {
 		global $wgRequest;
 		return [
@@ -30,7 +36,7 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 			],
 			'bsDid' => [
 				'type' => 'hidden',
-				'value' => $wgRequest->getText( 'bsDid' )
+				'value' => $this->did //$wgRequest->getText( 'bsDid' )
 			],
 		];
 	}

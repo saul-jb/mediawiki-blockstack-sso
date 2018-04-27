@@ -104,7 +104,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
 
-		$resp = AuthenticationResponse::newPass();
+		$resp = AuthenticationResponse::newPass( $user->getName() );
 		$resp->linkRequest = new BlockstackServerAuthenticationRequest();
 		return $resp;
 		return AuthenticationResponse::newPass( $user->getName() );
@@ -134,7 +134,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_REMOVE:
 				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
-				if ( !$user || !BlockstackSso::isLinked( $user->getId() ) ) {
+				if ( !$user || !BlockstackUser::newFromUser( $user )->isLinked() ) {
 					return [];
 				}
 				return [ new BlockstackRemoveAuthenticationRequest( $user->getId() ) ];
@@ -166,16 +166,14 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function providerAllowsAuthenticationDataChange( AuthenticationRequest $req, $checkData = true ) {
-		wfDebugLog('Foo - '.__METHOD__, $req->action . ' : ' . $req->username);
 
 		// Can we unlink the account?
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
-			//$user = User::newFromName( $req->username );
-			//if ( $user && $req->getBlockstackUserId() === BlockstackUser::getXFUserIdFromUser( $user ) ) {
-			//	return StatusValue::newGood();
-			//} else {
+			if( $user = User::newFromName( $req->username ) && BlockstackUser::newFromUser( $user )->isLinked() ) {
+				return StatusValue::newGood();
+			} else {
 				return StatusValue::newFatal( wfMessage( 'blockstacksso-change-account-not-linked' ) );
-			//}
+			}
 		}
 
 		return StatusValue::newGood( 'ignored' );

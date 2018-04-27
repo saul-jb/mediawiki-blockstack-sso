@@ -66,7 +66,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 				// Set the shared secret for this Blockstack ID
 				$bsUser->setSecret( $wgRequest->getText( 'wpSecret' ) );
-				$bsUser->setName( $wgRequest->getText( 'wpName' ) );
+				$bsUser->setName( $wgRequest->getText( 'bsName' ) );
 				$bsUser->save();
 
 				// Return UI to ask the user for the linking account details
@@ -92,15 +92,22 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// Check the credentials
 		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) ) {
-			//return AuthenticationResponse::newFail( wfMessage( 'wrongpassword' ) );			
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'wrongpassword' )
 			);
 		}
 
-		// Link the account
+		// If the account is already linked, bail
 		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
+		if ( $bsUser->isLinked() ) {
+			return AuthenticationResponse::newUI(
+				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
+				wfMessage( 'blockstacksso-unlink-first' )
+			);
+		}
+
+		// Link the account
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
 

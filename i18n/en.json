@@ -12,6 +12,7 @@
 	"blockstacksso-external-error": "The external site refused to authenticate you or encountered an error. Please try it again or contact the administrator of the site. The message was: $1",
 	"blockstacksso-form-merge": "The Blockstack account \"$1\" is not linked to any account in this wiki. Please enter the credentials of an existing account to link your Blockstack ID to.",
 	"blockstacksso-form-unlink": "Unlink Blockstack from wiki account",
+	"blockstacksso-unlink-first": "This wiki account is already linked to another blockstack ID, please unlink it first, or select a different account.",
 	"blockstacksso-link-other": "Your Blockstack account is already linked to another user. Please unlink the connection or contact an administrator, if you have no other wiki account.",
 	"blockstacksso-link-same": "Your Blockstack account is already linked to your user, so you can't link it again.",
 	"blockstacksso-error-no-authentication-workflow": "You requested to continue an already started Blockstack authentication workflow, but there's no one that is already started. Please start a new authentication workflow by trying to login again.",

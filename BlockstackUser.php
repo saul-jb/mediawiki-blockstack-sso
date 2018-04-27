@@ -25,9 +25,8 @@ class BlockstackUser {
 
 	public static function newFromUserId( $id ) {
 		$dbr = wfGetDB( DB_SLAVE );
-		$user = new self( $did );
 		if( $row = $dbr->selectRow( BlockstackSso::TABLENAME, 'bs_did', ['bs_user' => $id] ) ) {
-			$user = new self( $row->bs_did );
+			return new self( $row->bs_did );
 		}
 		return false;
 	}

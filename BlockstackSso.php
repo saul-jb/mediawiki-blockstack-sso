@@ -136,7 +136,7 @@ class BlockstackSso {
 			"description" => wfMessage( 'sitesubtitle' )->text(),
 			"icons" => [
 				[
-					"src" => $wgLogo,
+					"src" => $wgServer . $wgLogo,
 					"type" => 'image/' . ( preg_match( '|^.+(.\w+)$|', $wgLogo, $m ) ? $m[1] : 'jpg' )
 				]
 			]

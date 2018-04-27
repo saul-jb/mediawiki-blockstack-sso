@@ -17,7 +17,8 @@ window.validate = function() {
 			xhr.setRequestHeader("Content-type", "application/json");
 			xhr.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {
-					data.wikiUser = xhr.responseText;
+					var json = JSON.parse(xhr.responseText);
+					data.wikiUser = json.id;
 					process(data);
 				}
 			};

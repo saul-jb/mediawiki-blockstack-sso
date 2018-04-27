@@ -176,7 +176,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// Can we unlink the account?
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
-			if( $user = User::newFromName( $req->username ) && BlockstackUser::newFromUser( $user )->isLinked() ) {
+			if( $user = User::newFromName( $req->username ) && BlockstackUser::newFromUserId( $user->getId() )->isLinked() ) {
 				return StatusValue::newGood();
 			} else {
 				return StatusValue::newFatal( wfMessage( 'blockstacksso-change-account-not-linked' ) );

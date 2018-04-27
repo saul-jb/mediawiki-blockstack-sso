@@ -1,16 +1,12 @@
 <?php
 /**
- * BlockstackServerAuthenticationRequest implementation
+ * This is the form used for specifying the wiki account to link to
  */
 
 namespace BlockstackSso\Auth;
 
 use MediaWiki\Auth\AuthenticationRequest;
 
-/**
- * Implements a BlockstackServerAuthenticationRequest that holds the data returned by a
- * redirect from Blockstack into the authentication workflow.
- */
 class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 
 	public function getFieldInfo() {

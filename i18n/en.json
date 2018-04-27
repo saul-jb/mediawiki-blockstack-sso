@@ -9,7 +9,7 @@
 	"blockstacksso-create": "Create with Blockstack",
 	"blockstacksso-desc": "Allow users to login with a Blockstack account",
 	"blockstacksso-form-merge": "The Blockstack account '''$1''' is not linked to any user in this wiki. Please enter the credentials of an existing account to link your Blockstack ID to.",
-	"blockstacksso-unlink-first": "This wiki account is already linked to the blockstack ID '''$1''', please unlink it first, or select a different account.",
+	"blockstacksso-unlink-first": "This wiki account is already linked to the blockstack ID '''$1''', please [[Special:UnlinkAccounts|unlink]] it first, or select a different account.",
 	"blockstacksso-error-no-authentication-workflow": "You requested to continue an already started Blockstack authentication workflow, but there's no one that is already started. Please start a new authentication workflow by trying to login again.",
 	"blockstacksso-loginbutton-help": "Authenticates you with your Blockstack account.",
 	"blockstacksso-link-help": "Link your wiki account with your Blockstack account."

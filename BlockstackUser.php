@@ -40,7 +40,6 @@ class BlockstackUser {
 		return new self();
 	}
 
-
 	/**
 	 * Loads the data of the person represented by the Blockstack User ID.
 	 */

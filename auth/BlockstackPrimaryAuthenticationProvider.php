@@ -121,13 +121,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				) ];
 				break;
 
-			case AuthManager::ACTION_LINK:
-				return [ new BlockstackAuthenticationRequest(
-					wfMessage( 'blockstacksso-form-merge', $options['bsName'] ),
-					wfMessage( 'blockstacksso-link-help' )
-				) ];
-				break;
-
 			case AuthManager::ACTION_REMOVE:
 				$user = User::newFromName( $options['username'] );
 				if ( !$user || !BlockstackUser::newFromUserId( $user->getId() )->isLinked() ) {

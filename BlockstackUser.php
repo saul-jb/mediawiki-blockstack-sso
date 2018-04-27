@@ -8,7 +8,7 @@ class BlockstackUser {
 	private $did;
 	private $name;
 	private $secret;
-	private $userId;
+	private $userId = 0;
 	private $exists = false;
 
 	private function __construct( $did ) {

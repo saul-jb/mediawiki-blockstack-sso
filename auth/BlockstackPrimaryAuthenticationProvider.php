@@ -100,7 +100,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
-		self::$bsUser = $bsUser;
 
 		return AuthenticationResponse::newPass( $user()->getName() );
 	}
@@ -114,17 +113,19 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			// When first visiting the login page
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
-
-				if( array_key_exists( 'bsDid', $options ) ) {
-					self::$bsUser = BlockstackUser::newFromDid( $options['bsDid'] );
-				}
 				
-				// Otherwise, add our button to the login form
+				// Add our button to the login form
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso' ),
 					wfMessage( 'blockstacksso-loginbutton-help' )
 				) ];
 
+				break;
+			case AuthManager::ACTION_CHANGE:
+				wfDebugLog('Foo', 'ACTION_LOGIN');
+				if( array_key_exists( 'bsDid', $options ) ) {
+					self::$bsUser = BlockstackUser::newFromDid( $options['bsDid'] );
+				}
 				break;
 			case AuthManager::ACTION_LINK:
 				wfDebugLog('Foo', 'ACTION_LINK');

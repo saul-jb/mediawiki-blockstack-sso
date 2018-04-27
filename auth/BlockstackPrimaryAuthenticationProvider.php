@@ -65,7 +65,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			else {				
 
 				// Set the shared secret for this Blockstack ID
-				$bsUser->setSecret( $wgRequest->getText( 'wpSecret' ) );
+				$bsUser->setSecret( $wgRequest->getText( 'wpSecretKey' ) );
 				$bsUser->setName( $wgRequest->getText( 'bsName' ) );
 				$bsUser->save();
 

@@ -30,7 +30,7 @@ class BlockstackServerAuthenticationRequest extends AuthenticationRequest {
 			],
 			'bsDid' => [
 				'type' => 'hidden',
-				'value' => $wgRequest->getText( 'bsDid' );
+				'value' => $wgRequest->getText( 'bsDid' )
 			],
 		];
 	}

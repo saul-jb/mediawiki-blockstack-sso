@@ -114,6 +114,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			// When first visiting the login page
 			case AuthManager::ACTION_LOGIN:
 				wfDebugLog('Foo', 'ACTION_LOGIN');
+
+				if( array_key_exists( 'bsDid', $options ) ) {
+					self::$bsUser = BlockstackUser::newFromDid( $options['bsDid'] );
+				}
 				
 				// Otherwise, add our button to the login form
 				return [ new BlockstackAuthenticationRequest(

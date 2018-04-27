@@ -103,7 +103,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		if ( !$bsUser || $bsUser->isLinked() ) {
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
-				wfMessage( 'blockstacksso-unlink-first' )
+				wfMessage( 'blockstacksso-unlink-first', $bsUser->getName() )
 			);
 		}
 
@@ -135,7 +135,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				wfDebugLog('Foo', 'ACTION_LINK');
 				// TODO: Probably not the best message currently.
 				return [ new BlockstackAuthenticationRequest(
-					wfMessage( 'blockstacksso-form-merge' ),
+					wfMessage( 'blockstacksso-form-merge', $options( 'bsName' ) ),
 					wfMessage( 'blockstacksso-link-help' )
 				) ];
 				break;

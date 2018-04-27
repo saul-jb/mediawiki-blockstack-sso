@@ -89,10 +89,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 		// Get the wiki user we're linking to
 		$user = User::newFromName( $request->username );
-		$user->logout();
 
 		// Check the credentials
 		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) ) {
+			$user->logout();
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'wrongpassword' )
@@ -102,6 +102,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		// If the wiki account already has an associated Blockstack ID
 		$bsUser = BlockstackUser::newFromUserId( $user->getId() );
 		if ( $bsUser !== false ) {
+			$user->logout();
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'blockstacksso-unlink-first', $bsUser->getName() )

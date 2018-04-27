@@ -70,6 +70,12 @@ class BlockstackUser {
 		}
 	}
 
+	public function remove() {
+		$dbw = wfGetDB( DB_MASTER );
+		$dbw->delete( BlockstackSso::TABLENAME, ['bs_did' => $this->did] );
+		$this->exists = false;
+	}
+
 	public function getDid() {
 		return $this->did;
 	}

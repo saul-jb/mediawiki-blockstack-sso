@@ -134,7 +134,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			case AuthManager::ACTION_LINK:
 				wfDebugLog('Foo', 'ACTION_LINK');
 				return [ new BlockstackAuthenticationRequest(
-					wfMessage( 'blockstacksso-form-merge', $options( 'bsName' ) ),
+					wfMessage( 'blockstacksso-form-merge', $options['bsName'] ),
 					wfMessage( 'blockstacksso-link-help' )
 				) ];
 				break;
@@ -189,10 +189,14 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 	public function providerChangeAuthenticationData( AuthenticationRequest $req ) {
 		wfDebugLog('Foo', __METHOD__);
+
 		// Do the unlinking
 		if ( get_class( $req ) === BlockstackRemoveAuthenticationRequest::class && $req->action === AuthManager::ACTION_REMOVE ) {
-			//$user = User::newFromName( $req->username );
-			//BlockstackUser::terminateXFUserConnection( $user, $req->getBlockstackUserId() );
+			$user = User::newFromName( $req->username );
+			if( is_object( $user ) ) {
+				$bsUser = BlockstackUser::newFromUserId( $user->getId() );
+				if( $bsUser->exists() ) $bsUser->remove();
+			}
 		}
 	}
 

@@ -71,7 +71,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 
 				// Return UI to ask the user for the linking account details
 				return AuthenticationResponse::newUI(
-					[ new BlockstackServerAuthenticationRequest( $did ) ],
+					[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 					wfMessage( 'blockstacksso-form-merge' )
 				);
 			}

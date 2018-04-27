@@ -26,13 +26,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	/** Name of the button of the BlockstackAuthenticationRequest */
 	const BLOCKSTACK_BUTTON = 'blockstacksso';
 
-	public static $bsUser;
-
-	/**
-	 * @var null|BlockstackUserInfoAuthenticationRequest
-	 */
-	private $autoCreateLinkRequest;
-
 	/**
 	 * We only begin the authentication if we have type=blockstack in the query string which means the client-side
 	 * Blockstack authentication has made this request including the authentication info we must validate
@@ -115,10 +108,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		$resp = AuthenticationResponse::newPass( $user->getName() );
 		$resp->linkRequest = new BlockstackServerAuthenticationRequest();
 		return $resp;
-		return AuthenticationResponse::newPass( $user->getName() );
-	}
-
-	public function autoCreatedAccount( $user, $source ) {
+		//return AuthenticationResponse::newPass( $user->getName() );
 	}
 
 	public function getAuthenticationRequests( $action, array $options ) {
@@ -131,32 +121,22 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 					wfMessage( 'blockstacksso-loginbutton-help' )
 				) ];
 				break;
+
 			case AuthManager::ACTION_LINK:
-				wfDebugLog('Foo', 'ACTION_LINK');
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso-form-merge', $options['bsName'] ),
 					wfMessage( 'blockstacksso-link-help' )
 				) ];
 				break;
+
 			case AuthManager::ACTION_REMOVE:
-				wfDebugLog('Foo', 'ACTION_REMOVE');
 				$user = User::newFromName( $options['username'] );
 				if ( !$user || !BlockstackUser::newFromUserId( $user->getId() )->isLinked() ) {
 					return [];
 				}
 				return [ new BlockstackRemoveAuthenticationRequest( $user->getId() ) ];
 				break;
-			case AuthManager::ACTION_CREATE:
-				wfDebugLog('Foo', 'ACTION_CREATE');
-				// TODO: ACTION_CREATE doesn't really need all
-				// the things provided by inheriting
-				// ButtonAuthenticationRequest, so probably it's better
-				// to create it's own Request
-				return [ new BlockstackAuthenticationRequest(
-					wfMessage( 'blockstacksso-create' ),
-					wfMessage( 'blockstacksso-link-help' )
-				) ];
-				break;
+
 			default:
 				return [];
 		}
@@ -198,75 +178,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		}
 	}
 
-	public function providerNormalizeUsername( $username ) {
-		return null;
-	}
-
 	public function accountCreationType() {
 		return self::TYPE_LINK;
-	}
-
-	public function beginPrimaryAccountCreation( $user, $creator, array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackUserInfoAuthenticationRequest::class );
-		if ( $request ) {
-			if ( BlockstackUser::isXFUserIdFree( $request->userInfo['user_id'] ) ) {
-				$resp = AuthenticationResponse::newPass();
-				$resp->linkRequest = $request;
-				return $resp;
-			}
-		}
-		return $this->beginBlockstackAuthentication( $reqs, self::BLOCKSTACK_BUTTONREQUEST_NAME );
-	}
-
-	public function continuePrimaryAccountCreation( $user, $creator, array $reqs ) {
-		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
-		if ( !$request ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
-			);
-		}
-		$xfUser = $this->getAuthenticatedXFUserFromRequest( $request );
-		if ( $xfUser instanceof AuthenticationResponse ) {
-			return $xfUser;
-		}
-		try {
-			$userInfo = $xfUser->get( 'me' );
-			$isXFUserIdFree = BlockstackUser::isXFUserIdFree( $userInfo['user']['user_id'] );
-			if ( $isXFUserIdFree ) {
-				$resp = AuthenticationResponse::newPass();
-				$resp->linkRequest = new BlockstackUserInfoAuthenticationRequest( $userInfo );
-				return $resp;
-			}
-			return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-link-other' ) );
-		} catch ( \Exception $e ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-generic-error', $e->getMessage() )
-			);
-		}
-	}
-
-	public function finishAccountCreation( $user, $creator, AuthenticationResponse $response ) {
-		$userInfo = $response->linkRequest->userInfo;
-		$user->setEmail( $userInfo['user']['user_email'] );
-		$user->saveSettings();
-		BlockstackUser::connectWithBlockstackUser( $user, $userInfo['user']['user_id'] );
-
-		return null;
-	}
-
-	public function beginPrimaryAccountLink( $user, array $reqs ) {
-		wfDebugLog('Foo', __METHOD__);
-		return $this->beginBlockstackAuthentication( $reqs, self::BLOCKSTACK_BUTTONREQUEST_NAME );
-	}
-
-	public function continuePrimaryAccountLink( $user, array $reqs ) {
-		wfDebugLog('Foo', __METHOD__);
-		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
-		if ( !$request ) {
-			return AuthenticationResponse::newFail(
-				wfMessage( 'blockstacksso-error-no-authentication-workflow' )
-			);
-		}
-		print 'continuing link...';
 	}
 }

@@ -72,7 +72,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				// Return UI to ask the user for the linking account details
 				return AuthenticationResponse::newUI(
 					[ new BlockstackServerAuthenticationRequest( $reqs ) ],
-					wfMessage( 'blockstacksso-form-merge' )
+					wfMessage( 'blockstacksso-form-merge', $bsUser->getName() )
 				);
 			}
 
@@ -133,7 +133,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 				break;
 			case AuthManager::ACTION_LINK:
 				wfDebugLog('Foo', 'ACTION_LINK');
-				// TODO: Probably not the best message currently.
 				return [ new BlockstackAuthenticationRequest(
 					wfMessage( 'blockstacksso-form-merge', $options( 'bsName' ) ),
 					wfMessage( 'blockstacksso-link-help' )

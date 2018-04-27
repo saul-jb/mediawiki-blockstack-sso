@@ -94,14 +94,12 @@ class BlockstackSso {
 		return (bool)$dbr->selectRow( self::TABLENAME, '1', ['bs_user' => $id] );
 	}
 
-	private function returnCheckUser( $key ) {
+	private function returnCheckUser( $did ) {
 		global $wgOut;
 		$wgOut->disable();
 		header( 'Content-Type: application/json' );
-		$dbr = wfGetDB( DB_SLAVE );
-		$row = $dbr->selectRow( self::TABLENAME, 'bs_user', ['bs_key' => $key] );
-		$id = $row ? $row->bs_user : 0;
-		echo '{"id":' . $id . '}';
+		$bsUser = BlockstackUser::newFromDid( $did );
+		echo '{"id":' . $bsUser->getWikiUser() . '}';
 		self::restInPeace();
 	}
 

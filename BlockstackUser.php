@@ -7,6 +7,7 @@ class BlockstackUser {
 	private $name;
 	private $secret;
 	private $userId;
+	private $exists = false;
 
 	private function __construct( $did ) {
 		$this->did = $did;
@@ -38,8 +39,9 @@ class BlockstackUser {
 			$this->name = $row->bs_name;
 			$this->secret = $row->bs_secret;
 			$this->userId = $row->bs_user;
-			}
+			$this->exists = true;
 		}
+		$this->exists = false;
 	}
 
 	/**
@@ -62,6 +64,7 @@ class BlockstackUser {
 		// User doesn't exist, create now
 		else {
 			$dbw->insert( self::TABLENAME, $row );
+			$this->exists = true;
 		}
 	}
 
@@ -95,6 +98,10 @@ class BlockstackUser {
 
 	public function isLinked() {
 		return (bool)$this->userId;
+	}
+
+	public function exists() {
+		return $this->exists;
 	}
 
 }

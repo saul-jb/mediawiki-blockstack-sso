@@ -89,10 +89,10 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		}
 
 		// Get the wiki user we're linking to
-		$user = User:newFromName( $request->username );
+		$user = User::newFromName( $request->username );
 
 		// Check the credentials
-		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) {
+		if( $user->getId() == 0 || !$user->checkPassword( $request->password ) ) {
 			return AuthenticationResponse::newFail( wfMessage( 'wrongpassword' ) );			
 		}
 

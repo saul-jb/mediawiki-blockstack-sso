@@ -31,7 +31,7 @@ class BlockstackSso {
 		// Not using UnknownAction hook for these since we need to bypass permissions
 		if( $wgRequest->getText('action') == 'blockstack-manifest' ) $this->returnManifest();
 		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
-		if( $wgRequest->getText('action') == 'blockstack-checkuser' ) $this->returnCheckuser( $wgRequest->getText('key') );
+		if( $wgRequest->getText('action') == 'blockstack-checkuser' ) $this->returnCheckuser( $wgRequest->getText('did') );
 
 		// Include the common blockstack JS
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';

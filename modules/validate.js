@@ -13,7 +13,7 @@ window.validate = function() {
 
 			var wikiUser = 0;
 			var xhr = new XMLHttpRequest();
-			xhr.open('GET', window.script + '?action=blockstack-checkuser', true);
+			xhr.open('GET', window.script + '?action=blockstack-checkuser&did=' + data.did, true);
 			xhr.setRequestHeader("Content-type", "application/json");
 			xhr.onreadystatechange = function() {
 				if (this.readyState == 4 && this.status == 200) {

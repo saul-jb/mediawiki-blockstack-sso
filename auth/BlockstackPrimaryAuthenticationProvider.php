@@ -4,13 +4,13 @@
  */
 
 namespace BlockstackSso\Auth;
+
 use BlockstackSso;
 use BlockstackSso\BlockstackUser;
 use MediaWiki\Auth\AbstractPrimaryAuthenticationProvider;
 use MediaWiki\Auth\AuthenticationRequest;
 use MediaWiki\Auth\AuthenticationResponse;
 use MediaWiki\Auth\AuthManager;
-use MediaWiki\MediaWikiServices;
 use StatusValue;
 use User;
 
@@ -74,7 +74,6 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 	}
 
 	public function continuePrimaryAuthentication( array $reqs ) {
-		wfDebugLog('Foo', 'continuing primary auth');
 		$request = AuthenticationRequest::getRequestByClass( $reqs, BlockstackServerAuthenticationRequest::class );
 		if ( !$request ) {
 			return AuthenticationResponse::newFail( wfMessage( 'blockstacksso-error-no-authentication-workflow' ) );

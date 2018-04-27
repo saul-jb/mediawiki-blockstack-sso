@@ -98,9 +98,8 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 			);
 		}
 
-		// If the account is already linked, bail
-		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
-		if ( $bsUser->isLinked() ) {
+		// If the wiki account is already linked, bail
+		if ( BlockstackUser::newFromUser( $user )->isLinked() ) {
 			return AuthenticationResponse::newUI(
 				[ new BlockstackServerAuthenticationRequest( $reqs ) ],
 				wfMessage( 'blockstacksso-unlink-first' )
@@ -108,6 +107,7 @@ class BlockstackPrimaryAuthenticationProvider extends AbstractPrimaryAuthenticat
 		}
 
 		// Link the account
+		$bsUser = BlockstackUser::newFromDid( $request->bsDid );
 		$bsUser->setWikiUser( $user );
 		$bsUser->save();
 

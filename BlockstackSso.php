@@ -75,7 +75,7 @@ class BlockstackSso {
 				bs_id     INT UNSIGNED NOT NULL AUTO_INCREMENT,
 				bs_did    VARCHAR(40)  NOT NULL,
 				bs_name   VARCHAR(128) NOT NULL,
-				bs_secret VARCHAR(32)  NOT NULL,
+				bs_secret VARCHAR(128)  NOT NULL,
 				bs_user   INT UNSIGNED NOT NULL,
 				PRIMARY KEY (bs_id)
 			)" );

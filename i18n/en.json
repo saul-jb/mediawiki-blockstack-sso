@@ -12,5 +12,5 @@
 	"blockstacksso-unlink-first": "This wiki account is already linked to the blockstack ID '''$1''', please unlink it first, or select a different account.",
 	"blockstacksso-error-no-authentication-workflow": "You requested to continue an already started Blockstack authentication workflow, but there's no one that is already started. Please start a new authentication workflow by trying to login again.",
 	"blockstacksso-loginbutton-help": "Authenticates you with your Blockstack account.",
-	"blockstacksso-link-help": "Link your wiki account with your Blockstack account.",
+	"blockstacksso-link-help": "Link your wiki account with your Blockstack account."
 }

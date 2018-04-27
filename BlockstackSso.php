@@ -33,9 +33,6 @@ class BlockstackSso {
 		if( $wgRequest->getText('action') == 'blockstack-validate' ) $this->returnValidation( $wgExtensionAssetsPath . $path );
 		if( $wgRequest->getText('action') == 'blockstack-checkuser' ) $this->returnCheckuser( $wgRequest->getText('key') );
 
-		// If a secret key has been sent, set it now
-		if( $key = $wgRequest->getText('wpSecretKey') ) $this->setSecret( $key );
-
 		// Include the common blockstack JS
 		$wgResourceModules['ext.blockstackcommon']['localBasePath'] = __DIR__ . '/BlockstackCommon';
 		$wgResourceModules['ext.blockstackcommon']['remoteExtPath'] = $path . '/BlockstackCommon';
@@ -112,7 +109,7 @@ class BlockstackSso {
 		global $wgOut, $wgServer, $wgScript;
 
 		// Supply the URL the final data should be posted to
-		$data = 'window.script="' . $wgScript . $wgServer ."\";\n";
+		$data = 'window.script="' . $wgServer . $wgScript ."\";\n";
 
 		// Add script headers to load our validation script and the blockstack JS
 		$blockstack = "<script src=\"$path/BlockstackCommon/blockstack-common.min.js\"></script>\n";

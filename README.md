@@ -4,7 +4,7 @@ This extension uses the [Blockstack SSO single-signon for PHP apps](https://gith
 
 It's just like the familiar sign-in with Google/facebook/Twitter buttons we see everywhere, but with Blockstack you own your profile rather than relying on a company to look after it for you, and trusting that they'll respect your privacy and will always grant you access to your data.
 
-After a user clicks on the "sign in with blockstack" button, they're directed to the Blockstack browser - either the local distributed app running on their own device, or if that's not installed, the [web-based Blockstack browser](http://browser.blockstack.org/). The Blockstack app presents the use with a sign-in form advising them of the access the being requested and allowing the to select which of the Blockstack IDs they'd like to sign in with.
+After a user clicks on the "sign in with blockstack" button, they're directed to the Blockstack browser - either the local distributed app running on their own device, or if that's not installed, the [web-based Blockstack browser](http://browser.blockstack.org/). The Blockstack app presents the use with a sign-in form advising them of the access that's being requested and allowing them to select which of their Blockstack IDs they'd like to sign in with.
 
 If the selected Blockstack ID is already in use on the wiki, the user will then be automatically logged in to the account it's been previously associated with. Otherwise the user will be prompted to specify a username and password so they can link the Blockstack ID to one of the wiki's existing user accounts.
 
